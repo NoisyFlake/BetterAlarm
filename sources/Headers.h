@@ -27,9 +27,14 @@
 @property (retain, nonatomic) UILabel * alarmTitle;
 @end
 
+@interface NCNotificationAction : NSObject
+@property (nonatomic,copy,readonly) NSString * identifier;
+@end
+
 @interface NCNotificationRequest : NSObject
 @property (nonatomic,copy,readonly) NSString * sectionIdentifier;
 @property (nonatomic,copy,readonly) NSString * categoryIdentifier;
+@property (nonatomic,copy,readonly) NSString * notificationIdentifier;
 @end
 
 @interface CSFullscreenNotificationViewController : UIViewController

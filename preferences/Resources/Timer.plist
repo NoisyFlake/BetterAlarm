@@ -50,7 +50,7 @@
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>key</key>							<string>timerPrimaryBackgroundColor</string>
 			<key>label</key>						<string>Background Color</string>
-			<key>default</key>						<string>#FB7B42:1.00</string>
+			<key>default</key>						<string>#4292FB:1.00</string>
 		</dict>
 		<dict>
 			<key>cell</key>							<string>PSLinkCell</string>

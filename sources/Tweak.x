@@ -4,6 +4,9 @@
 NSUserDefaults *preferences;
 NSString *currentCategory = nil; // Possible values: MTAlarmCategory, MTTimerCategory
 
+NSInteger snoozeCount = 0;
+NSString *alarmId = nil;
+
 %ctor {
 	// [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:@"com.noisyflake.betteralarm"];
 	preferences = [[NSUserDefaults alloc] initWithSuiteName:@"com.noisyflake.betteralarm"];
@@ -12,8 +15,9 @@ NSString *currentCategory = nil; // Possible values: MTAlarmCategory, MTTimerCat
 		@"enabled": @YES,
 
 		@"timerSwapButtons": @YES,
+		@"timerSmartSnooze": @NO, // can't be changed via Settings
 		@"timerPrimaryPercent": @30,
-		@"timerPrimaryBackgroundColor": @"#FB7B42:1.00",
+		@"timerPrimaryBackgroundColor": @"#4292FB:1.00",
 		@"timerPrimaryTextColor": @"#FFFFFF:1.00",
 		@"timerPrimaryTextSize": @48,
 
@@ -28,12 +32,14 @@ NSString *currentCategory = nil; // Possible values: MTAlarmCategory, MTTimerCat
 		@"timerTitleTextSize": @24,
 
 		@"alarmSwapButtons": @NO,
-		@"alarmPrimaryPercent": @70,
+		@"alarmSmartSnooze": @NO,
+		@"alarmSmartSnoozeAmount": @3,
+		@"alarmPrimaryPercent": @30,
 		@"alarmPrimaryBackgroundColor": @"#000000:0.00",
 		@"alarmPrimaryTextColor": @"#FFFFFF:1.00",
 		@"alarmPrimaryTextSize": @48,
 
-		@"alarmSecondaryBackgroundColor": @"#FB7B42:1.00",
+		@"alarmSecondaryBackgroundColor": @"#A81B1D:1.00",
 		@"alarmSecondaryTextColor": @"#FFFFFF:1.00",
 		@"alarmSecondaryTextSize": @48,
 
@@ -56,6 +62,11 @@ NSString *currentCategory = nil; // Possible values: MTAlarmCategory, MTTimerCat
 
 	// This works because [CSModalButton layoutSubviews] is called before this method
 	CGFloat primaryHeight = [preferences boolForKey:keyFor(@"SwapButtons")] ? self.primaryActionButton.superview.frame.origin.y : self.primaryActionButton.superview.frame.size.height;
+	if (primaryHeight == 0) {
+		primaryHeight = 150;
+	} else if (primaryHeight == [[UIScreen mainScreen] bounds].size.height) {
+		primaryHeight = [[UIScreen mainScreen] bounds].size.height - 150;
+	}
 
 	CGFloat labelDistance = 15;
 
@@ -106,17 +117,32 @@ NSString *currentCategory = nil; // Possible values: MTAlarmCategory, MTTimerCat
 	%orig;
 
 	returnIfNotEnabled();
-	
+
 	UIViewController *controller = self._viewControllerForAncestor;
 	if (![controller.view isKindOfClass:%c(CSFullscreenNotificationView)]) return;
 
 	CSFullscreenNotificationView *mainView = (CSFullscreenNotificationView *)controller.view;
 
-	CGFloat primaryHeight = [[UIScreen mainScreen] bounds].size.height * ((100 - [preferences floatForKey:keyFor(@"PrimaryPercent")]) / 100);
+	BOOL isAlarmWithoutSnooze = [currentCategory isEqual:@"MTAlarmNoSnoozeCategory"];
+	CGFloat primaryHeight;
+
+	if (isAlarmWithoutSnooze) {
+		primaryHeight = [[UIScreen mainScreen] bounds].size.height;
+	} else if ([preferences boolForKey:keyFor(@"SmartSnooze")]) {
+		// This is not the alarm that was snoozed before, so our best option is to just reset the counter to 0
+		if (![alarmId isEqual:((CSFullscreenNotificationViewController *)controller).notificationRequest.notificationIdentifier]) snoozeCount = 0;
+
+		CGFloat percentage = (snoozeCount + 1) / ([preferences floatForKey:@"alarmSmartSnoozeAmount"] + 1);
+		if (percentage > 0 && percentage < 0.2) percentage = 0.2;
+		if (percentage < 1 && percentage > 0.8) percentage = 0.8;
+		primaryHeight = [[UIScreen mainScreen] bounds].size.height * (1 - percentage);
+	} else {
+		primaryHeight = [[UIScreen mainScreen] bounds].size.height * ((100 - [preferences floatForKey:keyFor(@"PrimaryPercent")]) / 100);
+	}
+	
 	CGFloat secondaryHeight = [[UIScreen mainScreen] bounds].size.height - primaryHeight;
 
-	if (self == mainView.primaryActionButton) {
-
+	if (self == mainView.primaryActionButton && !isAlarmWithoutSnooze) {
 		self.layer.cornerRadius = 0;
 		if ([preferences boolForKey:keyFor(@"SwapButtons")]) {
 			self.superview.frame = CGRectMake(0, secondaryHeight, kDEVICEWIDTH, primaryHeight);
@@ -153,8 +179,7 @@ NSString *currentCategory = nil; // Possible values: MTAlarmCategory, MTTimerCat
 			self.backgroundColor = backgroundColor;
 		}
 
-	} else if (self == mainView.secondaryActionButton) {
-
+	} else if (self == mainView.secondaryActionButton && !isAlarmWithoutSnooze) {
 		self.layer.cornerRadius = 0;
 		if ([preferences boolForKey:keyFor(@"SwapButtons")]) {
 			self.frame = CGRectMake(0, 0, kDEVICEWIDTH, secondaryHeight);
@@ -167,6 +192,7 @@ NSString *currentCategory = nil; // Possible values: MTAlarmCategory, MTTimerCat
 		self.visualEffect = nil;
 		self.titleLabel.font = [UIFont systemFontOfSize:[preferences floatForKey:keyFor(@"SecondaryTextSize")]];
 		self.titleLabel.textColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryTextColor")]];
+		self.titleLabel.alpha = (secondaryHeight == 0) ? 0 : 1;
 		[self.titleLabel sizeToFit];
 		
 		UIColor *backgroundColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryBackgroundColor")]];
@@ -190,15 +216,66 @@ NSString *currentCategory = nil; // Possible values: MTAlarmCategory, MTTimerCat
 			self.backgroundColor = backgroundColor;
 		}
 
+	} else if (isAlarmWithoutSnooze) {
+		self.layer.cornerRadius = 0;
+		self.superview.frame = CGRectMake(0, 0, kDEVICEWIDTH, primaryHeight);
+		self.frame = CGRectMake(0, 0, kDEVICEWIDTH, primaryHeight);
+
+		if ([[preferences objectForKey:keyFor(@"SecondaryTextSize")] isEqual:@""]) [preferences removeObjectForKey:keyFor(@"SecondaryTextSize")];
+
+		self.titleLabel.center = self.center;
+		self.titleLabel.font = [UIFont systemFontOfSize:[preferences floatForKey:keyFor(@"SecondaryTextSize")]];
+		self.titleLabel.textColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryTextColor")]];
+		[self.titleLabel sizeToFit];
+
+		UIColor *backgroundColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryBackgroundColor")]];
+		CGFloat alpha = 0.0;
+		[backgroundColor getRed:nil green:nil blue:nil alpha:&alpha];
+
+		if (alpha < 1 && !self.blurView) {
+			self.backgroundColor = UIColor.clearColor;
+
+			UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+			UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+			blurEffectView.frame = self.bounds;
+			blurEffectView.backgroundColor = backgroundColor;
+			blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+			blurEffectView.userInteractionEnabled = NO;
+
+			[self insertSubview:blurEffectView belowSubview:self.titleLabel];
+
+			self.blurView = blurEffectView;
+		} else {
+			self.backgroundColor = backgroundColor;
+		}
 	}
 }
 %end
 
 %hook CSFullscreenNotificationViewController
-- (void)_handleAction:(id)action withName:(id)name {
-	%orig;
 
-	returnIfNotEnabled();
+- (void)_handleAction:(NCNotificationAction *)action withName:(id)name {
+
+	if (![preferences boolForKey:@"enabled"]) {
+		%orig;
+		return;
+	}
+	
+	if ([preferences boolForKey:keyFor(@"SmartSnooze")]) {
+		if ([action.identifier isEqual:@"MTAlarmSnoozeAction"]) {
+			if (snoozeCount >= [preferences floatForKey:@"alarmSmartSnoozeAmount"]) {
+				// Block snoozing via hardware buttons when no snooze left
+				return;
+			}
+
+			snoozeCount++;
+			alarmId = self.notificationRequest.notificationIdentifier;
+		} else if ([action.identifier isEqual:@"MTAlarmDismissAction"]) {
+			snoozeCount = 0;
+		}
+	}
+
+	%orig;
 
 	clearScreen(self.view, NO);
 }
@@ -229,7 +306,7 @@ static void clearScreen(UIView *view, BOOL clear) {
 }
 
 static NSString *keyFor(NSString *key) {
-	if ([currentCategory isEqual:@"MTAlarmCategory"]) return [NSString stringWithFormat:@"alarm%@", key];
+	if ([currentCategory isEqual:@"MTAlarmCategory"] || [currentCategory isEqual:@"MTAlarmNoSnoozeCategory"]) return [NSString stringWithFormat:@"alarm%@", key];
 	if ([currentCategory isEqual:@"MTTimerCategory"]) return [NSString stringWithFormat:@"timer%@", key];
 
 	return nil;

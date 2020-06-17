@@ -2,7 +2,7 @@
 #import <Preferences/PSTableCell.h>
 #import <Preferences/PSSpecifier.h>
 
-#define kBETTERALARMCOLOR [UIColor colorWithRed: 0.98 green: 0.48 blue: 0.26 alpha: 1.00]
+#define kBETTERALARMCOLOR [UIColor colorWithRed: 0.26 green: 0.57 blue: 0.98 alpha: 1.00] // #4292FB
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
 @interface NSTask : NSObject

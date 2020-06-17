@@ -11,11 +11,11 @@
 		<key>detail</key>
 		<string>BetterAlarmRootListController</string>
 		<key>icon</key>
-		<string>icon.png</string>
+		<string>icons/betterAlarm.png</string>
 		<key>isController</key>
 		<true/>
 		<key>label</key>
-		<string>BetterAlarm</string>
+		<string>betterAlarm</string>
 	</dict>
 </dict>
 </plist>
