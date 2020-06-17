@@ -2,7 +2,7 @@
 #import <Preferences/PSTableCell.h>
 #import <Preferences/PSSpecifier.h>
 
-#define kBETTERALARMCOLOR [UIColor colorWithRed: 0.95 green: 0.58 blue: 0.36 alpha: 1.00]
+#define kBETTERALARMCOLOR [UIColor colorWithRed: 0.98 green: 0.48 blue: 0.26 alpha: 1.00]
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
 @interface NSTask : NSObject
@@ -14,7 +14,19 @@
 - (void)waitUntilExit;
 @end
 
-@interface UINavigationItem (Velvet)
+@interface CALayer(Private)
+@property BOOL continuousCorners;
+@end
+
+@interface PSListController (BetterAlarm)
+-(void)_returnKeyPressed:(id)arg1;
+@end
+
+@interface UIView (BetterAlarm)
+-(id)_viewControllerForAncestor;
+@end
+
+@interface UINavigationItem (BetterAlarm)
 @property (assign,nonatomic) UINavigationBar * navigationBar;
 @end
 
@@ -26,6 +38,18 @@
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(id)identifier specifier:(id)specifier;
 @end
 
+@interface PSEditableTableCell : PSTableCell
+@end
+
+@interface PSSliderTableCell : PSControlTableCell
+@end
+
+@interface BetterAlarmSlider : PSSliderTableCell
+@end
+
+@interface BetterAlarmInput : PSEditableTableCell
+@end
+
 @interface BetterAlarmToggle : PSSwitchTableCell
 @end
 
@@ -33,4 +57,28 @@
 @end
 
 @interface BetterAlarmRootListController : BetterAlarmBaseController
+@end
+
+@interface BetterAlarmTimerController : BetterAlarmBaseController
+@end
+
+@interface BetterAlarmAlarmsController : BetterAlarmBaseController
+@end
+
+
+
+@interface SparkColourPickerView : UIView
+@end
+
+@interface SparkColourPickerCell : PSTableCell
+@property (nonatomic, strong, readwrite) NSMutableDictionary *options;
+@property (nonatomic, strong, readwrite) SparkColourPickerView *colourPickerView;
+-(void)colourPicker:(id)picker didUpdateColour:(UIColor*) colour;
+-(void)openColourPicker;
+-(void)dismissPicker;
+@end
+
+@interface BetterAlarmColorPicker : SparkColourPickerCell
+@property (nonatomic, retain) UIView *colorPreview;
+@property (nonatomic, retain) UIColor *currentColor;
 @end

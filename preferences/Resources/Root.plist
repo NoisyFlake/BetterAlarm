@@ -15,6 +15,25 @@
 
 		<dict>
 			<key>cell</key>                         <string>PSGroupCell</string>
+			<key>label</key>						<string>Settings</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSLinkCell</string>
+			<key>isController</key>					<true/>
+			<key>detail</key>						<string>BetterAlarmAlarmsController</string>
+			<key>icon</key>							<string>icons/alarms</string>
+			<key>label</key>						<string>Alarms</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSLinkCell</string>
+			<key>isController</key>					<true/>
+			<key>detail</key>						<string>BetterAlarmTimerController</string>
+			<key>icon</key>							<string>icons/timer</string>
+			<key>label</key>						<string>Timer</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>                         <string>PSGroupCell</string>
 			<key>footerText</key>					<string>Developed with ♥ by NoisyFlake</string>
 			<key>footerAlignment</key> 			    <string>1</string>
 		</dict>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+        <dict>
+			<key>cell</key>                         <string>PSGroupCell</string>
+			<key>footerText</key>					<string>Displays Repeat on top, Stop on the bottom.</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSSwitchCell</string>
+			<key>default</key>						<true/>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>key</key>							<string>timerSwapButtons</string>
+			<key>label</key>						<string>Swap Buttons</string>
+			<key>cellClass</key>					<string>BetterAlarmToggle</string>
+		</dict>
+
+
+
+		<dict>
+			<key>cell</key>                         <string>PSGroupCell</string>
+			<key>label</key>						<string>Button Size</string>
+			<key>footerText</key>					<string>Controls which button should be larger.</string>
+		</dict>
+		<dict>
+			<key>cellClass</key>					<string>BetterAlarmSlider</string>
+			<key>key</key>							<string>timerPrimaryPercent</string>
+			<key>default</key>						<integer>30</integer>
+			<key>min</key>							<integer>20</integer>
+			<key>max</key>							<integer>80</integer>
+			<key>showValue</key>					<false />
+			<key>isSegmented</key>					<true />
+			<key>segmentCount</key>					<integer>6</integer>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>leftLabel</key>					<string>Stop</string>
+			<key>rightLabel</key>					<string>Repeat</string>
+		</dict>
+
+
+
+		<dict>
+			<key>cell</key>                         <string>PSGroupCell</string>
+			<key>label</key>						<string>Stop Button</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSLinkCell</string>
+			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>key</key>							<string>timerPrimaryBackgroundColor</string>
+			<key>label</key>						<string>Background Color</string>
+			<key>default</key>						<string>#FB7B42:1.00</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSLinkCell</string>
+			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>default</key>						<string>#FFFFFF:1.00</string>
+			<key>key</key>							<string>timerPrimaryTextColor</string>
+			<key>label</key>						<string>Text Color</string>
+		</dict>
+		<dict>
+			<key>cell</key> 						<string>PSEditTextCell</string>
+			<key>cellClass</key>					<string>BetterAlarmInput</string>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>placeholder</key> 					<string>48</string>
+			<key>isNumeric</key>					<true/>
+			<key>key</key> 							<string>timerPrimaryTextSize</string>
+			<key>label</key> 						<string>Text Size</string>
+		</dict>
+
+
+
+		<dict>
+			<key>cell</key>                         <string>PSGroupCell</string>
+			<key>label</key>						<string>Repeat Button</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSLinkCell</string>
+			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>key</key>							<string>timerSecondaryBackgroundColor</string>
+			<key>default</key>						<string>#000000:0.00</string>
+			<key>label</key>						<string>Background Color</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSLinkCell</string>
+			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>default</key>						<string>#FFFFFF:1.00</string>
+			<key>key</key>							<string>timerSecondaryTextColor</string>
+			<key>label</key>						<string>Text Color</string>
+		</dict>
+		<dict>
+			<key>cell</key> 						<string>PSEditTextCell</string>
+			<key>cellClass</key>					<string>BetterAlarmInput</string>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>placeholder</key> 					<string>48</string>
+			<key>isNumeric</key>					<true/>
+			<key>key</key> 							<string>timerSecondaryTextSize</string>
+			<key>label</key> 						<string>Text Size</string>
+		</dict>
+
+
+
+		<dict>
+			<key>cell</key>                         <string>PSGroupCell</string>
+			<key>label</key>						<string>Clock</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSLinkCell</string>
+			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
+			<key>default</key>						<string>#FFFFFF:0.75</string>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>key</key>							<string>timerClockTextColor</string>
+			<key>label</key>						<string>Text Color</string>
+		</dict>
+		<dict>
+			<key>cell</key> 						<string>PSEditTextCell</string>
+			<key>cellClass</key>					<string>BetterAlarmInput</string>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>placeholder</key> 					<string>38</string>
+			<key>isNumeric</key>					<true/>
+			<key>key</key> 							<string>timerClockTextSize</string>
+			<key>label</key> 						<string>Text Size</string>
+		</dict>
+
+
+
+		<dict>
+			<key>cell</key>                         <string>PSGroupCell</string>
+			<key>label</key>						<string>Title</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSLinkCell</string>
+			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
+			<key>default</key>						<string>#FFFFFF:0.75</string>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>key</key>							<string>timerTitleTextColor</string>
+			<key>label</key>						<string>Text Color</string>
+		</dict>
+		<dict>
+			<key>cell</key> 						<string>PSEditTextCell</string>
+			<key>cellClass</key>					<string>BetterAlarmInput</string>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>placeholder</key> 					<string>24</string>
+			<key>isNumeric</key>					<true/>
+			<key>key</key> 							<string>timerTitleTextSize</string>
+			<key>label</key> 						<string>Text Size</string>
+		</dict>
+		
+
+	</array>
+	<key>title</key>
+	<string>Timer</string>
+</dict>
+</plist>

@@ -5,6 +5,7 @@
 #endif
 
 #define returnIfNotEnabled() if (![preferences boolForKey:@"enabled"]) return
+#define kDEVICEWIDTH [[UIScreen mainScreen] bounds].size.width
 
 @interface UIView (BetterAlarm)
 -(id)_viewControllerForAncestor;
@@ -26,15 +27,26 @@
 @property (retain, nonatomic) UILabel * alarmTitle;
 @end
 
+@interface NCNotificationRequest : NSObject
+@property (nonatomic,copy,readonly) NSString * sectionIdentifier;
+@property (nonatomic,copy,readonly) NSString * categoryIdentifier;
+@end
+
 @interface CSFullscreenNotificationViewController : UIViewController
+@property (nonatomic, strong, readwrite) NCNotificationRequest *notificationRequest;
 @end
 
 @interface CSTeachableMomentsContainerView : UIView
 @end
 
+@interface SBUIBackgroundView : UIView
+@end
+
 @interface CSCoverSheetView : UIView
 @property (nonatomic, strong, readwrite) UIView *proudLockContainerView;
 @property (nonatomic, strong, readwrite) CSTeachableMomentsContainerView *teachableMomentsContainerView;
+@property (nonatomic, strong, readwrite) SBUIBackgroundView *backgroundView;
 @end
 
 static void clearScreen(UIView *view, BOOL clear);
+static NSString *keyFor(NSString *key);

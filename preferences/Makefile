@@ -1,14 +1,12 @@
-TARGET = iphone:clang:latest
-ARCHS = arm64 arm64e
-
 include $(THEOS)/makefiles/common.mk
 
 BUNDLE_NAME = BetterAlarm
 
-BetterAlarm_FILES = $(wildcard *.m CustomCells/*.m)
+BetterAlarm_FILES = $(wildcard *.m CustomCells/*.m ../sources/ColorUtils.m)
 BetterAlarm_INSTALL_PATH = /Library/PreferenceBundles
 BetterAlarm_FRAMEWORKS = UIKit
 BetterAlarm_PRIVATE_FRAMEWORKS = Preferences
+BetterAlarm_LIBRARIES = sparkcolourpicker
 BetterAlarm_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/bundle.mk

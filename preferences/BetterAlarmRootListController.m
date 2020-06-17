@@ -30,7 +30,7 @@
 	[attrString beginEditing];
 	[attrString addAttribute:NSFontAttributeName
 				value:[UIFont fontWithName:@"HelveticaNeue" size:34.0f]
-				range:NSMakeRange(6, 5)];
+				range:NSMakeRange(0, 6)];
 
 	[attrString endEditing];
 	tweakName.attributedText = attrString;
