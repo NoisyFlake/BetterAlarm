@@ -62,6 +62,8 @@ NSString *alarmId = nil;
 
 	// This works because [CSModalButton layoutSubviews] is called before this method
 	CGFloat primaryHeight = [preferences boolForKey:keyFor(@"SwapButtons")] ? self.primaryActionButton.superview.frame.origin.y : self.primaryActionButton.superview.frame.size.height;
+
+	// Adjust for when there is no second button
 	if (primaryHeight == 0) {
 		primaryHeight = 150;
 	} else if (primaryHeight == [[UIScreen mainScreen] bounds].size.height) {
@@ -155,7 +157,7 @@ NSString *alarmId = nil;
 
 		self.titleLabel.center = self.center;
 		self.titleLabel.font = [UIFont systemFontOfSize:[preferences floatForKey:keyFor(@"PrimaryTextSize")]];
-		self.titleLabel.textColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"PrimaryTextColor")]];
+		[self setTitleColor:[UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"PrimaryTextColor")]] forState:UIControlStateNormal];
 		[self.titleLabel sizeToFit];
 
 		UIColor *backgroundColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"PrimaryBackgroundColor")]];
@@ -191,7 +193,7 @@ NSString *alarmId = nil;
 
 		self.visualEffect = nil;
 		self.titleLabel.font = [UIFont systemFontOfSize:[preferences floatForKey:keyFor(@"SecondaryTextSize")]];
-		self.titleLabel.textColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryTextColor")]];
+		[self setTitleColor:[UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryTextColor")]] forState:UIControlStateNormal];
 		self.titleLabel.alpha = (secondaryHeight == 0) ? 0 : 1;
 		[self.titleLabel sizeToFit];
 		
@@ -225,7 +227,7 @@ NSString *alarmId = nil;
 
 		self.titleLabel.center = self.center;
 		self.titleLabel.font = [UIFont systemFontOfSize:[preferences floatForKey:keyFor(@"SecondaryTextSize")]];
-		self.titleLabel.textColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryTextColor")]];
+		[self setTitleColor:[UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryTextColor")]] forState:UIControlStateNormal];
 		[self.titleLabel sizeToFit];
 
 		UIColor *backgroundColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryBackgroundColor")]];
