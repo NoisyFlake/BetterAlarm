@@ -15,6 +15,24 @@
     [self setupHeader];
 }
 
+- (void)resetSettings {
+	UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Reset Settings"
+									message: @"Are you sure you want to reset all settings to the default value?"
+									preferredStyle:UIAlertControllerStyleAlert];
+
+	[alert addAction:[UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * action) {
+		[[NSUserDefaults standardUserDefaults] removePersistentDomainForName:@"com.noisyflake.betteralarm"];
+
+		UIAlertController *success = [UIAlertController alertControllerWithTitle: @"Success" message: @"All settings were reset." preferredStyle:UIAlertControllerStyleAlert];
+		[success addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+		[self presentViewController:success animated:YES completion:nil];
+	}]];
+
+	[alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+
+	[self presentViewController:alert animated:YES completion:nil];
+}
+
 - (void)setupHeader {
 	UIView *header = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 122)];
 

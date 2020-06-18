@@ -5,6 +5,7 @@
 #endif
 
 #define returnIfNotEnabled() if (![preferences boolForKey:@"enabled"]) return
+#define returnIfCategoryUnknown() if (!([currentCategory isEqual:@"MTAlarmCategory"] || [currentCategory isEqual:@"MTAlarmNoSnoozeCategory"] || [currentCategory isEqual:@"MTWakeUpAlarmCategory"] || [currentCategory isEqual:@"MTTimerCategory"])) return
 #define kDEVICEWIDTH [[UIScreen mainScreen] bounds].size.width
 
 @interface UIView (BetterAlarm)
@@ -51,6 +52,16 @@
 @property (nonatomic, strong, readwrite) UIView *proudLockContainerView;
 @property (nonatomic, strong, readwrite) CSTeachableMomentsContainerView *teachableMomentsContainerView;
 @property (nonatomic, strong, readwrite) SBUIBackgroundView *backgroundView;
+@end
+
+@interface SBBacklightController : NSObject
+@property (nonatomic,readonly) BOOL screenIsOn;
++(id)sharedInstance;
+@end
+
+@interface SBLockScreenManager : NSObject
++(id)sharedInstance;
+-(BOOL)unlockUIFromSource:(int)arg1 withOptions:(id)arg2 ;
 @end
 
 static void clearScreen(UIView *view, BOOL clear);

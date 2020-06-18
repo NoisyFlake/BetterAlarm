@@ -15,7 +15,7 @@
 
 		<dict>
 			<key>cell</key>                         <string>PSGroupCell</string>
-			<key>label</key>						<string>Settings</string>
+			<key>label</key>						<string>Main Options</string>
 		</dict>
 		<dict>
 			<key>cell</key>							<string>PSLinkCell</string>
@@ -30,6 +30,19 @@
 			<key>detail</key>						<string>BetterAlarmTimerController</string>
 			<key>icon</key>							<string>icons/timer</string>
 			<key>label</key>						<string>Timer</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>                         <string>PSGroupCell</string>
+			<key>label</key>						<string>Settings</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSButtonCell</string>
+			<key>action</key>						<string>resetSettings</string>
+			<key>icon</key>							<string>icons/reset</string>
+			<key>cellClass</key>					<string>BetterAlarmButton</string>
+			<key>label</key>						<string>Reset Settings</string>
+			<key>textColor</key>					<string>regular</string>
 		</dict>
 
 		<dict>

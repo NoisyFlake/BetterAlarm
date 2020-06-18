@@ -44,6 +44,9 @@
 @interface PSSliderTableCell : PSControlTableCell
 @end
 
+@interface BetterAlarmButton : PSTableCell
+@end
+
 @interface BetterAlarmSlider : PSSliderTableCell
 @end
 

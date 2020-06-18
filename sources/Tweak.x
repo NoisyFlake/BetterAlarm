@@ -2,10 +2,11 @@
 #import "ColorUtils.h"
 
 NSUserDefaults *preferences;
-NSString *currentCategory = nil; // Possible values: MTAlarmCategory, MTTimerCategory
 
-NSInteger snoozeCount = 0;
+BOOL isAlarmActive = NO;
+NSString *currentCategory = nil;
 NSString *alarmId = nil;
+NSInteger snoozeCount = 0;
 
 %ctor {
 	// [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:@"com.noisyflake.betteralarm"];
@@ -32,6 +33,7 @@ NSString *alarmId = nil;
 		@"timerTitleTextSize": @24,
 
 		@"alarmSwapButtons": @NO,
+		@"alarmBlockHardwareButtons": @NO,
 		@"alarmSmartSnooze": @NO,
 		@"alarmSmartSnoozeAmount": @3,
 		@"alarmPrimaryPercent": @30,
@@ -59,6 +61,7 @@ NSString *alarmId = nil;
 	%orig;
 
 	returnIfNotEnabled();
+	returnIfCategoryUnknown();
 
 	// This works because [CSModalButton layoutSubviews] is called before this method
 	CGFloat primaryHeight = [preferences boolForKey:keyFor(@"SwapButtons")] ? self.primaryActionButton.superview.frame.origin.y : self.primaryActionButton.superview.frame.size.height;
@@ -119,6 +122,7 @@ NSString *alarmId = nil;
 	%orig;
 
 	returnIfNotEnabled();
+	returnIfCategoryUnknown();
 
 	UIViewController *controller = self._viewControllerForAncestor;
 	if (![controller.view isKindOfClass:%c(CSFullscreenNotificationView)]) return;
@@ -169,7 +173,7 @@ NSString *alarmId = nil;
 
 			UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
 			UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-			blurEffectView.frame = self.bounds;
+			blurEffectView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height + 1);
 			blurEffectView.backgroundColor = backgroundColor;
 			blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 			blurEffectView.userInteractionEnabled = NO;
@@ -206,7 +210,7 @@ NSString *alarmId = nil;
 
 			UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
 			UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-			blurEffectView.frame = self.bounds;
+			blurEffectView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height + 1);
 			blurEffectView.backgroundColor = backgroundColor;
 			blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 			blurEffectView.userInteractionEnabled = NO;
@@ -239,7 +243,7 @@ NSString *alarmId = nil;
 
 			UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
 			UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-			blurEffectView.frame = self.bounds;
+			blurEffectView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height + 1);
 			blurEffectView.backgroundColor = backgroundColor;
 			blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 			blurEffectView.userInteractionEnabled = NO;
@@ -279,6 +283,7 @@ NSString *alarmId = nil;
 
 	%orig;
 
+	isAlarmActive = NO;
 	clearScreen(self.view, NO);
 }
 
@@ -288,8 +293,37 @@ NSString *alarmId = nil;
 	currentCategory = nil;
 	if (self.notificationRequest && [self.notificationRequest.sectionIdentifier isEqual:@"com.apple.mobiletimer"]) {
 		currentCategory = self.notificationRequest.categoryIdentifier;
+
+		if ([currentCategory isEqual:@"MTAlarmCategory"] || [currentCategory isEqual:@"MTAlarmNoSnoozeCategory"] || [currentCategory isEqual:@"MTWakeUpAlarmCategory"]) {
+			isAlarmActive = YES;
+		}
 	}
 	
+}
+%end
+
+%hook SpringBoard
+-(BOOL)_handlePhysicalButtonEvent:(UIPressesEvent *)arg1 {
+	if (isAlarmActive && arg1 && [arg1 allPresses]) {
+		int type = [[[arg1 allPresses] allObjects][0] type];
+
+		if ([preferences boolForKey:@"alarmBlockHardwareButtons"]) {
+			if (type == 101 || type == 102 || type == 103 || type == 104) {
+
+				SBBacklightController *backlight = [%c(SBBacklightController) sharedInstance];
+				if (!backlight.screenIsOn) {
+					// Wake up the screen
+					SBLockScreenManager *manager = (SBLockScreenManager *)[%c(SBLockScreenManager) sharedInstance];
+					NSDictionary *options = @{ @"SBUIUnlockOptionsTurnOnScreenFirstKey" : [NSNumber numberWithBool:YES] };
+					[manager unlockUIFromSource:6 withOptions:options];
+				}
+
+				return NO;
+			}
+		}
+	}
+	
+	return %orig;
 }
 %end
 
@@ -308,7 +342,7 @@ static void clearScreen(UIView *view, BOOL clear) {
 }
 
 static NSString *keyFor(NSString *key) {
-	if ([currentCategory isEqual:@"MTAlarmCategory"] || [currentCategory isEqual:@"MTAlarmNoSnoozeCategory"]) return [NSString stringWithFormat:@"alarm%@", key];
+	if ([currentCategory isEqual:@"MTAlarmCategory"] || [currentCategory isEqual:@"MTAlarmNoSnoozeCategory"] || [currentCategory isEqual:@"MTWakeUpAlarmCategory"]) return [NSString stringWithFormat:@"alarm%@", key];
 	if ([currentCategory isEqual:@"MTTimerCategory"]) return [NSString stringWithFormat:@"timer%@", key];
 
 	return nil;
