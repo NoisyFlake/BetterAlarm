@@ -14,12 +14,15 @@
 
 @interface CSModalButton : UIButton
 @property (nonatomic, strong, readwrite) UIVisualEffect *visualEffect;
-@property (retain, nonatomic) UIView * blurView;
+@end
+
+@interface UIButton (BetterAlarm)
+@property (retain, nonatomic) UIView * betterAlarmBlurView;
 @end
 
 @interface CSModalView : UIView
 @property(retain, nonatomic, getter=_primaryActionButton, setter=_setPrimaryActionButton:) CSModalButton *primaryActionButton;
-@property(retain, nonatomic, getter=_secondaryActionButton, setter=_setsecondaryActionButton:) CSModalButton *secondaryActionButton;
+@property(retain, nonatomic, getter=_secondaryActionButton, setter=_setsecondaryActionButton:) UIButton *secondaryActionButton;
 @property(retain, nonatomic, getter=_titleLabel, setter=_setTitleLabel:) UILabel *titleLabel;
 @end
 

@@ -115,8 +115,8 @@ NSInteger snoozeCount = 0;
 }
 %end
 
-%hook CSModalButton
-%property (retain, nonatomic) UIView * blurView;
+%hook UIButton
+%property (retain, nonatomic) UIView * betterAlarmBlurView;
 
 - (void)layoutSubviews {
 	%orig;
@@ -168,19 +168,19 @@ NSInteger snoozeCount = 0;
 		CGFloat alpha = 0.0;
 		[backgroundColor getRed:nil green:nil blue:nil alpha:&alpha];
 
-		if (alpha < 1 && !self.blurView) {
+		if (alpha < 1 && !self.betterAlarmBlurView) {
 			self.backgroundColor = UIColor.clearColor;
 
 			UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
 			UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-			blurEffectView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height + 1);
+			blurEffectView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height + 1);
 			blurEffectView.backgroundColor = backgroundColor;
 			blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 			blurEffectView.userInteractionEnabled = NO;
 
 			[self insertSubview:blurEffectView belowSubview:self.titleLabel];
 
-			self.blurView = blurEffectView;
+			self.betterAlarmBlurView = blurEffectView;
 		} else {
 			self.backgroundColor = backgroundColor;
 		}
@@ -195,7 +195,13 @@ NSInteger snoozeCount = 0;
 
 		if ([[preferences objectForKey:keyFor(@"SecondaryTextSize")] isEqual:@""]) [preferences removeObjectForKey:keyFor(@"SecondaryTextSize")];
 
-		self.visualEffect = nil;
+		// On modern devices it's a CSModalButton, on older devices like the SE it's just a UI button.
+		if ([self isKindOfClass:%c(CSModalButton)]) {
+			((CSModalButton *)self).visualEffect = nil;
+		} else {
+			self.titleLabel.center = self.center;
+		}
+		
 		self.titleLabel.font = [UIFont systemFontOfSize:[preferences floatForKey:keyFor(@"SecondaryTextSize")]];
 		[self setTitleColor:[UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryTextColor")]] forState:UIControlStateNormal];
 		self.titleLabel.alpha = (secondaryHeight == 0) ? 0 : 1;
@@ -205,19 +211,19 @@ NSInteger snoozeCount = 0;
 		CGFloat alpha = 0.0;
 		[backgroundColor getRed:nil green:nil blue:nil alpha:&alpha];
 
-		if (alpha < 1 && !self.blurView) {
+		if (alpha < 1 && !self.betterAlarmBlurView) {
 			self.backgroundColor = UIColor.clearColor;
 
 			UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
 			UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-			blurEffectView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height + 1);
+			blurEffectView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height + 1);
 			blurEffectView.backgroundColor = backgroundColor;
 			blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 			blurEffectView.userInteractionEnabled = NO;
 
 			[self insertSubview:blurEffectView belowSubview:self.titleLabel];
 
-			self.blurView = blurEffectView;
+			self.betterAlarmBlurView = blurEffectView;
 		} else {
 			self.backgroundColor = backgroundColor;
 		}
@@ -238,19 +244,19 @@ NSInteger snoozeCount = 0;
 		CGFloat alpha = 0.0;
 		[backgroundColor getRed:nil green:nil blue:nil alpha:&alpha];
 
-		if (alpha < 1 && !self.blurView) {
+		if (alpha < 1 && !self.betterAlarmBlurView) {
 			self.backgroundColor = UIColor.clearColor;
 
 			UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
 			UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-			blurEffectView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height + 1);
+			blurEffectView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height + 1);
 			blurEffectView.backgroundColor = backgroundColor;
 			blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 			blurEffectView.userInteractionEnabled = NO;
 
 			[self insertSubview:blurEffectView belowSubview:self.titleLabel];
 
-			self.blurView = blurEffectView;
+			self.betterAlarmBlurView = blurEffectView;
 		} else {
 			self.backgroundColor = backgroundColor;
 		}
