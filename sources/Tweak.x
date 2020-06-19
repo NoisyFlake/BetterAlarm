@@ -194,18 +194,19 @@ NSInteger snoozeCount = 0;
 		}
 
 		if ([[preferences objectForKey:keyFor(@"SecondaryTextSize")] isEqual:@""]) [preferences removeObjectForKey:keyFor(@"SecondaryTextSize")];
-
-		// On modern devices it's a CSModalButton, on older devices like the SE it's just a UI button.
-		if ([self isKindOfClass:%c(CSModalButton)]) {
-			((CSModalButton *)self).visualEffect = nil;
-		} else {
-			self.titleLabel.center = self.center;
-		}
 		
 		self.titleLabel.font = [UIFont systemFontOfSize:[preferences floatForKey:keyFor(@"SecondaryTextSize")]];
 		[self setTitleColor:[UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryTextColor")]] forState:UIControlStateNormal];
 		self.titleLabel.alpha = (secondaryHeight == 0) ? 0 : 1;
 		[self.titleLabel sizeToFit];
+
+		// On modern devices it's a CSModalButton, on older devices like the SE it's just a UI button.
+		if ([self isKindOfClass:%c(CSModalButton)]) {
+			((CSModalButton *)self).visualEffect = nil;
+		} else {
+			// For some reason we have to manually adjust the frame here
+			self.titleLabel.frame = CGRectMake((self.frame.size.width / 2) - (self.titleLabel.frame.size.width / 2), (self.frame.size.height / 2) - (self.titleLabel.frame.size.height / 2), self.titleLabel.frame.size.width, self.titleLabel.frame.size.height);
+		}
 		
 		UIColor *backgroundColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryBackgroundColor")]];
 		CGFloat alpha = 0.0;
@@ -229,6 +230,7 @@ NSInteger snoozeCount = 0;
 		}
 
 	} else if (isAlarmWithoutSnooze) {
+		// This is a primary button, but we need the settings for the secondary (AKA stop) button
 		self.layer.cornerRadius = 0;
 		self.superview.frame = CGRectMake(0, 0, kDEVICEWIDTH, primaryHeight);
 		self.frame = CGRectMake(0, 0, kDEVICEWIDTH, primaryHeight);
