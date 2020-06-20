@@ -148,6 +148,17 @@ NSInteger snoozeCount = 0;
 	
 	CGFloat secondaryHeight = [[UIScreen mainScreen] bounds].size.height - primaryHeight;
 
+	// Fix for very small devices like the SE where the text would overlap on default settings
+	if ([[UIScreen mainScreen] bounds].size.height <= 568) {
+		if (primaryHeight < 175) {
+			primaryHeight = 185;
+			secondaryHeight = [[UIScreen mainScreen] bounds].size.height - primaryHeight;
+		} else if (secondaryHeight < 175) {
+			secondaryHeight = 185;
+			primaryHeight = [[UIScreen mainScreen] bounds].size.height - secondaryHeight;
+		}
+	}
+
 	if (self == mainView.primaryActionButton && !isAlarmWithoutSnooze) {
 		self.layer.cornerRadius = 0;
 		if ([preferences boolForKey:keyFor(@"SwapButtons")]) {
