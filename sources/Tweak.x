@@ -79,7 +79,8 @@ NSInteger snoozeCount = 0;
 		NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
 		NSTimeZone *zone = [NSTimeZone localTimeZone];
 		[formatter setTimeZone:zone];
-		[formatter setDateFormat:@"HH:mm"];
+		formatter.dateStyle = NSDateFormatterNoStyle;
+		formatter.timeStyle = NSDateFormatterShortStyle;
 
 		if ([[preferences objectForKey:keyFor(@"ClockTextSize")] isEqual:@""]) [preferences removeObjectForKey:keyFor(@"ClockTextSize")];
 
