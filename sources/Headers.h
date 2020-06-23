@@ -67,5 +67,9 @@
 -(BOOL)unlockUIFromSource:(int)arg1 withOptions:(id)arg2 ;
 @end
 
+@interface DDNotificationView : UIView
+-(void)requestDestruction;
+@end
+
 static void clearScreen(UIView *view, BOOL clear);
 static NSString *keyFor(NSString *key);

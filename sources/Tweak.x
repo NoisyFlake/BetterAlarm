@@ -1,9 +1,11 @@
 #import "Headers.h"
 #import "ColorUtils.h"
+#include <dlfcn.h>
 
 NSUserDefaults *preferences;
 
 BOOL isAlarmActive = NO;
+BOOL isTimerActive = NO;
 NSString *currentCategory = nil;
 NSString *alarmId = nil;
 NSInteger snoozeCount = 0;
@@ -51,6 +53,12 @@ NSInteger snoozeCount = 0;
 		@"alarmTitleTextColor": @"#FFFFFF:0.75",
 		@"alarmTitleTextSize": @24,
 	}];
+
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+
+	if ([fileManager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/ShortLook.dylib"]) {
+		dlopen("/Library/MobileSubstrate/DynamicLibraries/ShortLook.dylib", RTLD_LAZY);
+	}
 }
 
 %hook CSFullscreenNotificationView
@@ -304,6 +312,7 @@ NSInteger snoozeCount = 0;
 	%orig;
 
 	isAlarmActive = NO;
+	isTimerActive = NO;
 	clearScreen(self.view, NO);
 }
 
@@ -316,6 +325,10 @@ NSInteger snoozeCount = 0;
 
 		if ([currentCategory isEqual:@"MTAlarmCategory"] || [currentCategory isEqual:@"MTAlarmNoSnoozeCategory"] || [currentCategory isEqual:@"MTWakeUpAlarmCategory"]) {
 			isAlarmActive = YES;
+		}
+
+		if ([currentCategory isEqual:@"MTTimerCategory"]) {
+			isTimerActive = YES;
 		}
 	}
 	
@@ -344,6 +357,16 @@ NSInteger snoozeCount = 0;
 	}
 	
 	return %orig;
+}
+%end
+
+%hook DDNotificationView
+-(void)_presentNotification:(id)notification indefinitely:(BOOL)indefinitely {
+	%orig;
+
+	if (isAlarmActive || isTimerActive) {
+		[self requestDestruction];
+	}
 }
 %end
 
