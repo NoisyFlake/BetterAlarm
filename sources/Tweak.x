@@ -297,7 +297,7 @@ NSInteger snoozeCount = 0;
 		return;
 	}
 
-	if ([action.identifier isEqual:@"MTAlarmDismissAction"] && [preferences boolForKey:@"alarmConfirmation"]) {
+	if (([action.identifier isEqual:@"MTAlarmDismissAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationDismissActionIdentifier"])) && [preferences boolForKey:@"alarmConfirmation"]) {
 		[self betterAlarmShowAlertFor:action withName:name];
 	} else {
 		[self _handleOrigAction:action withName:name];
@@ -333,7 +333,7 @@ NSInteger snoozeCount = 0;
 		question = [NSString stringWithFormat:@"%u %@ %u", number1, operatorSign, number2];
 	}
 
-	UIAlertController * alert = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:@"%@?", action.title] message:question preferredStyle:UIAlertControllerStyleAlert];
+	UIAlertController * alert = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:@"%@?", action.title ?: @"Stop"] message:question preferredStyle:UIAlertControllerStyleAlert];
 
 	if (wantsMath) {
 		[alert addTextFieldWithConfigurationHandler:^(UITextField *textfield) {
@@ -413,6 +413,10 @@ NSInteger snoozeCount = 0;
 
 %hook SpringBoard
 -(BOOL)_handlePhysicalButtonEvent:(UIPressesEvent *)arg1 {
+	if (![preferences boolForKey:@"enabled"]) {
+		return %orig;
+	}
+
 	if (isAlarmActive && arg1 && [arg1 allPresses]) {
 		int type = [[[arg1 allPresses] allObjects][0] type];
 
@@ -439,6 +443,8 @@ NSInteger snoozeCount = 0;
 %hook DDNotificationView
 -(void)_presentNotification:(id)notification indefinitely:(BOOL)indefinitely {
 	%orig;
+
+	returnIfNotEnabled();
 
 	if (isAlarmActive || isTimerActive) {
 		[self requestDestruction];
