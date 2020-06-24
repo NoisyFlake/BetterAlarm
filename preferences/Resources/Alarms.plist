@@ -86,6 +86,37 @@
 
 		<dict>
 			<key>cell</key>                         <string>PSGroupCell</string>
+			<key>footerText</key>					<string>Asks for confirmation when pressing Stop.</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSSwitchCell</string>
+			<key>default</key>						<false/>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>key</key>							<string>alarmConfirmation</string>
+			<key>id</key>							<string>alarmConfirmation</string>
+			<key>label</key>						<string>Require Confirmation</string>
+			<key>cellClass</key>					<string>BetterAlarmToggle</string>
+			<key>set</key>							<string>setConfirmation:specifier:</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSSegmentCell</string>
+			<key>default</key>						<string>simple</string>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>key</key>							<string>alarmConfirmationType</string>
+			<key>id</key>							<string>alarmConfirmationType</string>
+			<key>validTitles</key>					<array>
+														<string>Simple</string>
+														<string>Math Problem</string>
+													</array>
+			<key>validValues</key>					<array>
+														<string>Simple</string>
+														<string>math</string>
+													</array>
+		</dict>
+
+
+		<dict>
+			<key>cell</key>                         <string>PSGroupCell</string>
 			<key>label</key>						<string>Stop Button</string>
 		</dict>
 		<dict>

@@ -33,6 +33,7 @@
 
 @interface NCNotificationAction : NSObject
 @property (nonatomic,copy,readonly) NSString * identifier;
+@property (nonatomic,copy,readonly) NSString * title;
 @end
 
 @interface NCNotificationRequest : NSObject
@@ -43,6 +44,8 @@
 
 @interface CSFullscreenNotificationViewController : UIViewController
 @property (nonatomic, strong, readwrite) NCNotificationRequest *notificationRequest;
+- (void)betterAlarmShowAlertFor:action withName:name;
+- (void)_handleOrigAction:(NCNotificationAction *)action withName:(id)name;
 @end
 
 @interface CSTeachableMomentsContainerView : UIView

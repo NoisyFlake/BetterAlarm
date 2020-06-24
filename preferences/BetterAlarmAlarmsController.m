@@ -16,6 +16,10 @@
 			if ([spec.properties[@"id"] isEqual:@"buttonSizeGroup"] || [spec.properties[@"id"] isEqual:@"buttonSizeSlider"]) {
 				if ([preferences boolForKey:@"alarmSmartSnooze"]) [mutableSpecifiers removeObject:spec];
 			}
+
+			if ([spec.properties[@"id"] isEqual:@"alarmConfirmationType"]) {
+				if (![preferences boolForKey:@"alarmConfirmation"]) [mutableSpecifiers removeObject:spec];
+			}
 		}
 
 		_specifiers = mutableSpecifiers;
@@ -54,6 +58,24 @@
 			}
 		}
 
+	}
+}
+
+- (void)setConfirmation:(id)value specifier:(PSSpecifier*)specifier {
+	[super setPreferenceValue:value specifier:specifier];
+
+	if ([value boolValue] == YES) {
+		if ([self specifierForID:@"alarmConfirmationType"] == nil) {
+			NSArray *specifiers = [self loadSpecifiersFromPlistName:@"Alarms" target:self];
+			for (PSSpecifier *spec in specifiers) {
+				if ([spec.properties[@"id"] isEqual:@"alarmConfirmationType"]) {
+					[self insertSpecifier:spec afterSpecifierID:@"alarmConfirmation" animated:YES];
+					break;
+				}
+			}
+		}
+	} else {
+		[self removeSpecifierID:@"alarmConfirmationType" animated:YES];
 	}
 }
 

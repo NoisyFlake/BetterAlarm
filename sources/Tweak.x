@@ -39,6 +39,8 @@ NSInteger snoozeCount = 0;
 		@"alarmSmartSnooze": @NO,
 		@"alarmSmartSnoozeAmount": @3,
 		@"alarmPrimaryPercent": @30,
+		@"alarmConfirmation": @NO,
+		@"alarmConfirmationType": @"simple",
 		@"alarmPrimaryBackgroundColor": @"#000000:0.00",
 		@"alarmPrimaryTextColor": @"#FFFFFF:1.00",
 		@"alarmPrimaryTextSize": @48,
@@ -294,7 +296,80 @@ NSInteger snoozeCount = 0;
 		%orig;
 		return;
 	}
-	
+
+	if ([action.identifier isEqual:@"MTAlarmDismissAction"] && [preferences boolForKey:@"alarmConfirmation"]) {
+		[self betterAlarmShowAlertFor:action withName:name];
+	} else {
+		[self _handleOrigAction:action withName:name];
+	}
+}
+
+%new
+- (void)betterAlarmShowAlertFor:(NCNotificationAction *)action withName:(id)name {
+	BOOL wantsMath = [[preferences valueForKey:@"alarmConfirmationType"] isEqual:@"math"];
+	NSBundle *uiKitBundle = [NSBundle bundleWithIdentifier:@"com.apple.UIKitCore"];
+
+	int number1 = 0;
+	int number2 = 0;
+	int operator = 0;
+	NSString *operatorSign = nil;
+
+	NSString *question = nil;
+
+	if (wantsMath) {
+		operator = arc4random_uniform(3);
+		operatorSign = operator == 0 ? @"+" : operator == 1 ? @"-" : @"x";
+
+		if (operator == 0) {
+			number1 = arc4random_uniform(99) + 1;
+			number2 = arc4random_uniform(99) + 1;
+		} else if (operator == 1) {
+			number1 = arc4random_uniform(99) + 1;
+			number2 = arc4random_uniform(number1-1) + 1;
+		} else if (operator == 2) {
+			number1 = arc4random_uniform(9) + 2;
+			number2 = arc4random_uniform(9) + 2;
+		}
+		question = [NSString stringWithFormat:@"%u %@ %u", number1, operatorSign, number2];
+	}
+
+	UIAlertController * alert = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:@"%@?", action.title] message:question preferredStyle:UIAlertControllerStyleAlert];
+
+	if (wantsMath) {
+		[alert addTextFieldWithConfigurationHandler:^(UITextField *textfield) {
+			textfield.keyboardType = UIKeyboardTypeNumberPad;
+		}];
+	}
+
+	[alert addAction:[UIAlertAction actionWithTitle:[uiKitBundle localizedStringForKey:@"OK" value:@"" table:nil] style:UIAlertActionStyleDefault handler:^(UIAlertAction * alertAction) {
+		if (!wantsMath) {
+			[self _handleOrigAction:action withName:name];
+		} else {
+			NSString *answer = [alert.textFields objectAtIndex:0].text;
+			NSString *solution = nil;
+
+			if (operator == 0) {
+				solution = [NSString stringWithFormat:@"%d", number1 + number2];
+			} else if (operator == 1) {
+				solution = [NSString stringWithFormat:@"%d", number1 - number2];
+			} else if (operator == 2) {
+				solution = [NSString stringWithFormat:@"%d", number1 * number2];
+			}
+
+			if ([answer isEqual:solution]) {
+				[self _handleOrigAction:action withName:name];
+			} else {
+				[self betterAlarmShowAlertFor:action withName:name];
+			}
+		}
+	}]];
+
+	[alert addAction:[UIAlertAction actionWithTitle:[uiKitBundle localizedStringForKey:@"Cancel" value:@"" table:nil] style:UIAlertActionStyleCancel handler:nil]];
+	[self presentViewController:alert animated:YES completion:nil];
+}
+
+%new
+- (void)_handleOrigAction:(NCNotificationAction *)action withName:(id)name {
 	if ([preferences boolForKey:keyFor(@"SmartSnooze")]) {
 		if ([action.identifier isEqual:@"MTAlarmSnoozeAction"]) {
 			if (snoozeCount >= [preferences floatForKey:@"alarmSmartSnoozeAmount"]) {
@@ -309,7 +384,8 @@ NSInteger snoozeCount = 0;
 		}
 	}
 
-	%orig;
+	// %orig;
+	_logos_orig$_ungrouped$CSFullscreenNotificationViewController$_handleAction$withName$(self, _cmd, action, name);
 
 	isAlarmActive = NO;
 	isTimerActive = NO;
