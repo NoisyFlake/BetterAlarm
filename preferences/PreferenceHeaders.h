@@ -68,6 +68,12 @@
 @interface BetterAlarmAlarmsController : BetterAlarmBaseController
 @end
 
+@interface PSListItemsController : PSListController
+@end
+
+@interface BetterAlarmListItemsController : PSListItemsController
+@end
+
 
 
 @interface SparkColourPickerView : UIView

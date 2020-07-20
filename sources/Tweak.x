@@ -39,8 +39,8 @@ NSInteger snoozeCount = 0;
 		@"alarmSmartSnooze": @NO,
 		@"alarmSmartSnoozeAmount": @3,
 		@"alarmPrimaryPercent": @30,
-		@"alarmConfirmation": @NO,
-		@"alarmConfirmationType": @"simple",
+		@"alarmStopConfirmationType": @"none",
+		@"alarmSnoozeConfirmationType": @"none",
 		@"alarmPrimaryBackgroundColor": @"#000000:0.00",
 		@"alarmPrimaryTextColor": @"#FFFFFF:1.00",
 		@"alarmPrimaryTextSize": @48,
@@ -297,7 +297,8 @@ NSInteger snoozeCount = 0;
 		return;
 	}
 
-	if (([action.identifier isEqual:@"MTAlarmDismissAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationDismissActionIdentifier"])) && [preferences boolForKey:@"alarmConfirmation"]) {
+	if ((![[preferences valueForKey:@"alarmStopConfirmationType"] isEqual:@"none"] && ( [action.identifier isEqual:@"MTAlarmDismissAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationDismissActionIdentifier"]) )) 
+		|| (![[preferences valueForKey:@"alarmSnoozeConfirmationType"] isEqual:@"none"] && ( [action.identifier isEqual:@"MTAlarmSnoozeAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationSilenceActionIdentifier"]) ))) {
 		[self betterAlarmShowAlertFor:action withName:name];
 	} else {
 		[self _handleOrigAction:action withName:name];
@@ -306,7 +307,14 @@ NSInteger snoozeCount = 0;
 
 %new
 - (void)betterAlarmShowAlertFor:(NCNotificationAction *)action withName:(id)name {
-	BOOL wantsMath = [[preferences valueForKey:@"alarmConfirmationType"] isEqual:@"math"];
+	BOOL wantsMath = NO;
+
+	if (([action.identifier isEqual:@"MTAlarmDismissAction"] || [action.identifier isEqual:@"com.apple.UNNotificationDismissActionIdentifier"]) && [[preferences valueForKey:@"alarmStopConfirmationType"] isEqual:@"math"]) {
+		wantsMath = YES;
+	} else if (([action.identifier isEqual:@"MTAlarmSnoozeAction"] || [action.identifier isEqual:@"com.apple.UNNotificationSilenceActionIdentifier"]) && [[preferences valueForKey:@"alarmSnoozeConfirmationType"] isEqual:@"math"]) {
+		wantsMath = YES;
+	}
+
 	NSBundle *uiKitBundle = [NSBundle bundleWithIdentifier:@"com.apple.UIKitCore"];
 
 	int number1 = 0;

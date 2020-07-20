@@ -86,30 +86,41 @@
 
 		<dict>
 			<key>cell</key>                         <string>PSGroupCell</string>
-			<key>footerText</key>					<string>Asks for confirmation when pressing Stop.</string>
+			<key>footerText</key>					<string>Confirmation type when pressing Snooze or Stop.</string>
 		</dict>
 		<dict>
-			<key>cell</key>							<string>PSSwitchCell</string>
-			<key>default</key>						<false/>
+			<key>cell</key>							<string>PSLinkListCell</string>
+			<key>detail</key>						<string>BetterAlarmListItemsController</string>
+			<key>default</key>						<string>none</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
-			<key>key</key>							<string>alarmConfirmation</string>
-			<key>id</key>							<string>alarmConfirmation</string>
-			<key>label</key>						<string>Require Confirmation</string>
-			<key>cellClass</key>					<string>BetterAlarmToggle</string>
-			<key>set</key>							<string>setConfirmation:specifier:</string>
-		</dict>
-		<dict>
-			<key>cell</key>							<string>PSSegmentCell</string>
-			<key>default</key>						<string>simple</string>
-			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
-			<key>key</key>							<string>alarmConfirmationType</string>
-			<key>id</key>							<string>alarmConfirmationType</string>
+			<key>key</key>							<string>alarmStopConfirmationType</string>
+			<key>label</key>						<string>Stop Confirmation</string>
 			<key>validTitles</key>					<array>
+														<string>None</string>
 														<string>Simple</string>
 														<string>Math Problem</string>
 													</array>
 			<key>validValues</key>					<array>
+														<string>none</string>
+														<string>simple</string>
+														<string>math</string>
+													</array>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSLinkListCell</string>
+			<key>detail</key>						<string>BetterAlarmListItemsController</string>
+			<key>default</key>						<string>none</string>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>key</key>							<string>alarmSnoozeConfirmationType</string>
+			<key>label</key>						<string>Snooze Confirmation</string>
+			<key>validTitles</key>					<array>
+														<string>None</string>
 														<string>Simple</string>
+														<string>Math Problem</string>
+													</array>
+			<key>validValues</key>					<array>
+														<string>none</string>
+														<string>simple</string>
 														<string>math</string>
 													</array>
 		</dict>
