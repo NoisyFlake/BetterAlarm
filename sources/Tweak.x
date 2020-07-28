@@ -10,6 +10,8 @@ NSString *currentCategory = nil;
 NSString *alarmId = nil;
 NSInteger snoozeCount = 0;
 
+UIFont *emphasizedFont = nil;
+
 %ctor {
 	// [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:@"com.noisyflake.betteralarm"];
 	preferences = [[NSUserDefaults alloc] initWithSuiteName:@"com.noisyflake.betteralarm"];
@@ -54,6 +56,9 @@ NSInteger snoozeCount = 0;
 		
 		@"alarmTitleTextColor": @"#FFFFFF:0.75",
 		@"alarmTitleTextSize": @24,
+		
+		@"alarmAsCarrier": @"alarmTime",
+		@"alarmAsCarrierMaxTime": @"24"
 	}];
 
 	NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -292,7 +297,7 @@ NSInteger snoozeCount = 0;
 
 - (void)_handleAction:(NCNotificationAction *)action withName:(id)name {
 
-	if (![preferences boolForKey:@"enabled"]) {
+	if (![preferences boolForKey:@"enabled"] || ![self isMemberOfClass:%c(CSFullscreenNotificationViewController)]) {
 		%orig;
 		return;
 	}
@@ -480,3 +485,105 @@ static NSString *keyFor(NSString *key) {
 
 	return nil;
 }
+
+// -------------------- ALARM AS CARRIER ----------------------- //
+
+%hook _UIStatusBarCellularItem
+-(_UIStatusBarStringView *)serviceNameView {
+	_UIStatusBarStringView *orig = %orig;
+	orig.isCarrier = YES;
+
+	return orig;
+}
+%end
+
+%hook _UIStatusBarStyleAttributes
+-(void)setEmphasizedFont:(UIFont *)arg1 {
+	// Save the font used in the status bar so we can use it later
+	if (emphasizedFont != arg1) emphasizedFont = arg1;
+
+	%orig;
+}
+%end
+
+%hook _UIStatusBarStringView
+%property (nonatomic, assign) BOOL isCarrier;
+
+-(void)setFont:(UIFont *)arg1 {
+	if (self.isCarrier) {
+		arg1 = emphasizedFont;
+	}
+
+	%orig(arg1);
+}
+
+-(void)setText:(NSString *)text {
+	if (self.isCarrier) {
+
+		if ([[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"alarmTime"] || [[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"timeUntilAlarm"]) {
+			MTAlarmManager *manager = [[%c(SBScheduledAlarmObserver) sharedInstance] valueForKey:@"_alarmManager"];
+			MTAlarm *nextAlarm = manager.cache.nextAlarm;
+
+			// Create an NSDate that points to the time the alarm can be away at max
+			NSDate *now = [[NSDate alloc] init];
+			NSDateComponents *dateComponents = [[NSDateComponents alloc] init];
+			[dateComponents setHour:[preferences integerForKey:@"alarmAsCarrierMaxTime"]];
+			NSCalendar *calendar = [NSCalendar currentCalendar];
+			NSDate *maxDate = [calendar dateByAddingComponents:dateComponents toDate:now options:0];
+
+			if (nextAlarm != nil && ([maxDate compare:nextAlarm.nextFireDate] == NSOrderedDescending)) {
+				NSString *customText = nil;
+
+				NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+				dateFormatter.timeStyle = NSDateFormatterShortStyle;
+				customText = [dateFormatter stringFromDate:nextAlarm.nextFireDate];
+
+				if ([[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"timeUntilAlarm"]) {
+					unsigned int unitFlags = NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitDay | NSCalendarUnitMonth;
+					NSDateComponents *conversionInfo = [calendar components:unitFlags fromDate:now toDate:nextAlarm.nextFireDate options:0];
+					int days = [conversionInfo day];
+					int hours = [conversionInfo hour];
+					int minutes = [conversionInfo minute];
+
+					if (days < 1) {
+						customText = [NSString stringWithFormat:@"%d:%02d", hours, minutes];
+					} else {
+						customText = [NSString stringWithFormat:@"%dd %dh", days, hours];
+					}
+				}
+
+				NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:customText];
+
+				// Load the alarm icon and scale / color it
+				UIImage *iconImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconAlarm]]];
+				iconImage = [iconImage scaleImageToSize:CGSizeMake(emphasizedFont.capHeight, emphasizedFont.capHeight)];
+				iconImage = [iconImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+
+				// Make an attributed string out of the image
+				NSTextAttachment *textAttachment = [[NSTextAttachment alloc] init];
+				textAttachment.image = iconImage;
+				NSAttributedString *attrStringWithImage = [NSAttributedString attributedStringWithAttachment:textAttachment];
+
+				// Prepend the icon and a space to the string
+				[attributedString insertAttributedString:[[NSMutableAttributedString alloc] initWithString:@" "] atIndex:0];
+				[attributedString insertAttributedString:attrStringWithImage atIndex:0];
+
+				self.attributedText = attributedString;
+				return;
+			} 
+		}
+
+	}
+
+	%orig;
+}
+%end
+
+%hook _UIStatusBarIndicatorItem
+-(id)initWithIdentifier:(id)arg1 statusBar:(id)arg2 {
+	// Hide the stock alarm icon so that it's not displayed twice in the status bar
+	if (([[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"alarmTime"] || [[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"timeUntilAlarm"]) && [self isKindOfClass:%c(_UIStatusBarIndicatorAlarmItem)]) return nil;
+
+	return %orig;
+}
+%end

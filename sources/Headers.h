@@ -74,5 +74,41 @@
 -(void)requestDestruction;
 @end
 
+@interface _UIStatusBarStyleAttributes : NSObject
+@property (nonatomic,copy) UIFont * emphasizedFont;
+@end
+
+@interface _UIStatusBarStringView : UILabel
+@property (nonatomic, assign) BOOL isCarrier;
+@end
+
+@interface MTAlarm : NSObject
+@property (nonatomic,readonly) NSDate * nextFireDate;
+@end
+
+@interface MTAlarmCache : NSObject
+@property (nonatomic,retain) MTAlarm * nextAlarm;
+@end
+
+@interface MTAlarmManager : NSObject
+@property (nonatomic,retain) MTAlarmCache * cache;
+@end
+
+@interface _UIStatusBarItem : NSObject
+@end
+
+@interface _UIStatusBarCellularItem : _UIStatusBarItem
+@property (nonatomic,retain) _UIStatusBarStringView * serviceNameView;
+@end
+
+@interface _UIStatusBarIndicatorItem : _UIStatusBarItem
+@end
+
+@interface UIImage (Reliquia)
+- (UIImage *)scaleImageToSize:(CGSize)newSize;
+@end
+
 static void clearScreen(UIView *view, BOOL clear);
 static NSString *keyFor(NSString *key);
+
+#define iconAlarm @"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAFaUlEQVR4Ae3dA7QjWxaH8Xfbtm1r2cazbdto27Zt27Zt27pJ253a841nTi5SVadSucn51votc//j97r7GZPLTKay+AwTsBWHcB43kYwdmIFGaIAkxHLV8TNmYAtO4e6/HMMaTMTPqABfyoeWOAqx6TK6oipipZroiXMQm/ahLQrD8/KiOYIQDXrCz5IwHaLBLbRAbnjS80iGaHIUReF31XAJoslVvAKtNUUIosl5VIil133NI1hoAdflwjSIRhdQBUpxNgIwFTnhqEyY68Px422E2cgE2/X14fjxOkJv2OqtGDl+RbyEPzEMa3AAZxHEEzxGAGdxAGswDH/iRVTw/Y0ZeA0RVQCXfTp+KXyCMTgH0eQsRuNjlPRphIvIj3TrH+Xj58GnWAkL4rEQVuAT5HE3gv6XoqJ4EKXjV8NI3IP45C5GoGqURriHwki1NlE4fj1MQQgSI0KYjLpRGKElUu2sh8cvhrGwIDHKwhgU9XCE40ixOh4dPxN+wA1IBhHEd8jk0Qg1EFYjD45fHpshGdRGlIM6wkWIC78jrImaj/8qgpAMLoCXNY8wGmFt13T8TOgJiTPdkUnTCJsRVrKG42fHDEicmoZsGka4jLBuuzx+PqyCxLmVyOtyhADCuuPy+DsgUbQApVAaiyBRtN3lCLcQVsDFy44fj/zS+HdlIVG2wsXL0WWEtd3JG65Pr/kW/rckiA+mOnxj3oKwpjj4qNkTkrADAN0cfESdgrAaO/icL2aAZyy8ZHOE3xFWPZvfcIMwAwABm9+Y6yDFzkf4285miBng/2xApghGOI9U6x7Br5o/QMwAKfoWauoIHZFqNSL4SfmGGSBVQRSFWkUch4UqSLPJqIKUGgsxA9j/oY2KoRccVw+WGSBdFmpDe1MgZoCITITWqiFkBojYU1SBtkZCzAC2DIeW8uCeGcC2u8gN130KMQM48jFct9IM4NhyuKoULDOAYyGUgOM+gZgBXPkQjhtjBnBtJBx31gzg2mk4qiLEDKBFOdjuJTOANs/Ddn+aAbT5DbYbZgbQZjBst8YMoM0q2O6AGUCbvbH8EdRyIJTBBjgF2wWj9P92ui/2B7gO2z2GeKgUKCEGeBiLA5SBrsrF4wABiIcWoxwyuVQeS+LxJegMxPDvTXg/xPDvY+hqiBbGSthuKMTw76eIPyCGfz/GvQjRwngOtqsA0cIoC/Ljo6hxCo4bBXHFGAHHfQRxxfgAjiuJEMQRI4TicNUKiCPGUrjuE4gjxodwXW7chRi23EEuaGk4xLBlKLRVBU8hRkSeojK0NgliRGQ8tFcHFiRNhoVa8KTREJfMN18XFUUQkiIjGYXhad9CUmR8Dc/LhA2Q/2OsQxKiUlkEIP9gJKMMotpLsCAJzsIL8KWukATXGb6VCVMhCWoSkuBr2RL0J+tlyIqYKC+2QRLEFuSBr+VAUWWE5YnwyFeOXwzZ/Tj+EhxACeXlaEo8v+YrLzslcQiLkD3axxcITqCC8sbcFRYkTljorLzhVsRJCKCM4PXxlQNfQA38by8iOU6+ZKmf82vhojKQOoL3x1ckow7Ub8zrM/jPC+o33HoIQAD3I7g9vgXBfGSDWhK+QSCDPeq/RhLUsmMhBJb+ETQeX6kIRmaAf8htBApDzZcRsmOp2+Mr1cIEPIXEiKcYj5pQcjXCYmSD47rpPL5SZQzDHYhP7mAIKkFJ2wid4bgrEN3HV8qFj7AMoSg92pfiQ+SCksYRgEs6B1CPr7vi+AAjcAqiyUkMx/soDr0pI+gcoDNEoRzf08riOfyKwViJPTiJa3jwL9dwEnuwAoPwK55DWXibMoKiIxyXDZ1w4V86IhtMkd8rK2I1098AFIGjP4SNpa4AAAAASUVORK5CYII="

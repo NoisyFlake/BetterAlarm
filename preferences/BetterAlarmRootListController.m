@@ -24,7 +24,9 @@
 		[[NSUserDefaults standardUserDefaults] removePersistentDomainForName:@"com.noisyflake.betteralarm"];
 
 		UIAlertController *success = [UIAlertController alertControllerWithTitle: @"Success" message: @"All settings were reset." preferredStyle:UIAlertControllerStyleAlert];
-		[success addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+		[success addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+			[self reload];
+		}]];
 		[self presentViewController:success animated:YES completion:nil];
 	}]];
 
