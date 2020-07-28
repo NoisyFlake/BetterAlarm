@@ -509,14 +509,6 @@ static NSString *keyFor(NSString *key) {
 %hook _UIStatusBarStringView
 %property (nonatomic, assign) BOOL isCarrier;
 
--(void)setFont:(UIFont *)arg1 {
-	if (self.isCarrier) {
-		arg1 = emphasizedFont;
-	}
-
-	%orig(arg1);
-}
-
 -(void)setText:(NSString *)text {
 	if (self.isCarrier) {
 
@@ -552,7 +544,11 @@ static NSString *keyFor(NSString *key) {
 					}
 				}
 
-				NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:customText];
+				NSDictionary *attrDict = @{
+					NSFontAttributeName : emphasizedFont
+				};
+
+				NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:customText attributes:attrDict];
 
 				// Load the alarm icon and scale / color it
 				UIImage *iconImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconAlarm]]];
