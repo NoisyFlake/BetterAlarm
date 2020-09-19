@@ -75,11 +75,12 @@
 @end
 
 @interface _UIStatusBarStyleAttributes : NSObject
+@property (nonatomic,copy) UIFont * font;
 @property (nonatomic,copy) UIFont * emphasizedFont;
 @end
 
 @interface _UIStatusBarStringView : UILabel
-@property (nonatomic, assign) BOOL isCarrier;
+@property (nonatomic, assign) BOOL isBetterAlarmCarrier;
 @end
 
 @interface MTAlarm : NSObject

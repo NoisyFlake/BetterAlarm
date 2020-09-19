@@ -10,7 +10,9 @@ NSString *currentCategory = nil;
 NSString *alarmId = nil;
 NSInteger snoozeCount = 0;
 
-UIFont *emphasizedFont = nil;
+UIFont *regularFont;
+UIFont *emphasizedFont;
+BOOL showsNextAlarm = NO;
 
 %ctor {
 	// [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:@"com.noisyflake.betteralarm"];
@@ -58,7 +60,9 @@ UIFont *emphasizedFont = nil;
 		@"alarmTitleTextSize": @24,
 		
 		@"alarmAsCarrier": @"alarmTime",
-		@"alarmAsCarrierMaxTime": @"24"
+		@"alarmAsCarrierMaxTime": @"24",
+		@"alarmAsCarrierCustom": @NO,
+		@"alarmAsCarrierCustomText": @""
 	}];
 
 	NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -501,26 +505,30 @@ static NSString *keyFor(NSString *key) {
 %hook _UIStatusBarCellularItem
 -(_UIStatusBarStringView *)serviceNameView {
 	_UIStatusBarStringView *orig = %orig;
-	orig.isCarrier = YES;
+	orig.isBetterAlarmCarrier = YES;
 
 	return orig;
 }
 %end
 
-%hook _UIStatusBarStyleAttributes
--(void)setEmphasizedFont:(UIFont *)arg1 {
-	// Save the font used in the status bar so we can use it later
-	if (emphasizedFont != arg1) emphasizedFont = arg1;
+%hook _UIStatusBarStringView
+%property (nonatomic, assign) BOOL isBetterAlarmCarrier;
+
+-(void)applyStyleAttributes:(_UIStatusBarStyleAttributes *)arg1 {
+
+	if (self.isBetterAlarmCarrier) {
+		if (regularFont == nil) regularFont = arg1.font;
+		if (emphasizedFont == nil) emphasizedFont = arg1.emphasizedFont;
+
+		arg1.font = showsNextAlarm ? emphasizedFont : regularFont;
+	}
 
 	%orig;
 }
-%end
-
-%hook _UIStatusBarStringView
-%property (nonatomic, assign) BOOL isCarrier;
 
 -(void)setText:(NSString *)text {
-	if (self.isCarrier) {
+	if (self.isBetterAlarmCarrier) {
+		showsNextAlarm = NO;
 
 		if ([[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"alarmTime"] || [[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"timeUntilAlarm"]) {
 			MTAlarmManager *manager = [[%c(SBScheduledAlarmObserver) sharedInstance] valueForKey:@"_alarmManager"];
@@ -554,15 +562,12 @@ static NSString *keyFor(NSString *key) {
 					}
 				}
 
-				NSDictionary *attrDict = @{
-					NSFontAttributeName : emphasizedFont
-				};
-
-				NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:customText attributes:attrDict];
+				NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:customText];
 
 				// Load the alarm icon and scale / color it
-				UIImage *iconImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconAlarm]]];
-				iconImage = [iconImage scaleImageToSize:CGSizeMake(emphasizedFont.capHeight, emphasizedFont.capHeight)];
+				// UIImage *iconImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconAlarm]]];
+				UIImage *iconImage = [UIImage systemImageNamed:@"alarm.fill"];
+				iconImage = [iconImage scaleImageToSize:CGSizeMake(emphasizedFont.capHeight ?: 10, emphasizedFont.capHeight ?: 10)];
 				iconImage = [iconImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
 				// Make an attributed string out of the image
@@ -575,9 +580,14 @@ static NSString *keyFor(NSString *key) {
 				[attributedString insertAttributedString:attrStringWithImage atIndex:0];
 
 				self.attributedText = attributedString;
+				showsNextAlarm = YES;
+
 				return;
-			} 
-		}
+			} else if ([preferences boolForKey:@"alarmAsCarrierCustom"] && [preferences valueForKey:@"alarmAsCarrierCustomText"]) {
+				self.attributedText = [[NSMutableAttributedString alloc] initWithString:[preferences valueForKey:@"alarmAsCarrierCustomText"]];
+				return;
+			}
+		} 
 
 	}
 

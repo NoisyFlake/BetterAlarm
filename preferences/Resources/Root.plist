@@ -34,54 +34,14 @@
 
 		<dict>
 			<key>cell</key>                         <string>PSGroupCell</string>
-			<key>label</key>						<string>Alarm as Carrier</string>
-			<key>footerText</key>					<string>Displays next alarm information in the status bar.</string>
+			<key>label</key>						<string>Additional Features</string>
 		</dict>
 		<dict>
-			<key>cell</key>							<string>PSLinkListCell</string>
-			<key>detail</key>						<string>BetterAlarmListItemsController</string>
-			<key>default</key>						<string>alarmTime</string>
-			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
-			<key>key</key>							<string>alarmAsCarrier</string>
-			<key>label</key>						<string>Display Mode</string>
-			<key>validTitles</key>					<array>
-														<string>None</string>
-														<string>Alarm Time</string>
-														<string>Time until Alarm</string>
-													</array>
-			<key>validValues</key>					<array>
-														<string>disabled</string>
-														<string>alarmTime</string>
-														<string>timeUntilAlarm</string>
-													</array>
-		</dict>
-		<dict>
-			<key>cell</key>							<string>PSLinkListCell</string>
-			<key>detail</key>						<string>BetterAlarmListItemsController</string>
-			<key>default</key>						<string>24</string>
-			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
-			<key>key</key>							<string>alarmAsCarrierMaxTime</string>
-			<key>label</key>						<string>Max. Time Ahead</string>
-			<key>validTitles</key>					<array>
-														<string>12 hours</string>
-														<string>24 hours</string>
-														<string>2 days</string>
-														<string>3 days</string>
-														<string>4 days</string>
-														<string>5 days</string>
-														<string>6 days</string>
-														<string>7 days</string>
-													</array>
-			<key>validValues</key>					<array>
-														<string>12</string>
-														<string>24</string>
-														<string>48</string>
-														<string>72</string>
-														<string>96</string>
-														<string>120</string>
-														<string>144</string>
-														<string>168</string>
-													</array>
+			<key>cell</key>							<string>PSLinkCell</string>
+			<key>isController</key>					<true/>
+			<key>detail</key>						<string>BetterAlarmPreviewController</string>
+			<key>icon</key>							<string>icons/preview</string>
+			<key>label</key>						<string>Alarm Preview</string>
 		</dict>
 
 		<dict>

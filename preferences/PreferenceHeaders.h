@@ -65,6 +65,9 @@
 @interface BetterAlarmTimerController : BetterAlarmBaseController
 @end
 
+@interface BetterAlarmPreviewController : BetterAlarmBaseController
+@end
+
 @interface BetterAlarmAlarmsController : BetterAlarmBaseController
 @end
 
