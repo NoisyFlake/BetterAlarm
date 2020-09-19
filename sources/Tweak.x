@@ -465,6 +465,16 @@ UIFont *emphasizedFont = nil;
 }
 %end
 
+%hook SparkAutoUnlockX 
+-(BOOL)externalBlocksUnlock { 
+	if (isAlarmActive || isTimerActive) {
+		return YES;
+	}
+
+    return %orig; 
+} 
+%end
+
 static void clearScreen(UIView *view, BOOL clear) {
 	while (view != nil && ![view isKindOfClass:%c(CSCoverSheetView)]) {
 		view = view.superview;
