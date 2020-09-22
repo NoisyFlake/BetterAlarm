@@ -1,7 +1,7 @@
 Package: com.noisyflake.betteralarm
 Name: BetterAlarm
 Depends: mobilesubstrate, firmware (>= 13.0), preferenceloader, com.spark.libsparkcolourpicker
-Version: 1.2.3
+Version: 1.2.4
 Architecture: iphoneos-arm
 Description: A beautiful timer and alarm screen
 Maintainer: NoisyFlake

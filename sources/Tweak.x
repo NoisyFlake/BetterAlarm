@@ -155,9 +155,6 @@ BOOL showsNextAlarm = NO;
 	if (isAlarmWithoutSnooze) {
 		primaryHeight = [[UIScreen mainScreen] bounds].size.height;
 	} else if ([preferences boolForKey:keyFor(@"SmartSnooze")]) {
-		// This is not the alarm that was snoozed before, so our best option is to just reset the counter to 0
-		if (![alarmId isEqual:((CSFullscreenNotificationViewController *)controller).notificationRequest.notificationIdentifier]) snoozeCount = 0;
-
 		CGFloat percentage = (snoozeCount + 1) / ([preferences floatForKey:@"alarmSmartSnoozeAmount"] + 1);
 		if (percentage > 0 && percentage < 0.2) percentage = 0.2;
 		if (percentage < 1 && percentage > 0.8) percentage = 0.8;
