@@ -14,6 +14,8 @@ UIFont *regularFont;
 UIFont *emphasizedFont;
 BOOL showsNextAlarm = NO;
 
+CSFullscreenNotificationViewController *currentCS;
+
 %ctor {
 	// [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:@"com.noisyflake.betteralarm"];
 	preferences = [[NSUserDefaults alloc] initWithSuiteName:@"com.noisyflake.betteralarm"];
@@ -355,9 +357,12 @@ BOOL showsNextAlarm = NO;
 		}];
 	}
 
+	// Saving self here is necessary as apparently for some users "self" would be the alertController in the next block
+	currentCS = self;
+
 	[alert addAction:[UIAlertAction actionWithTitle:[uiKitBundle localizedStringForKey:@"OK" value:@"" table:nil] style:UIAlertActionStyleDefault handler:^(UIAlertAction * alertAction) {
 		if (!wantsMath) {
-			[self _handleOrigAction:action withName:name];
+			[currentCS _handleOrigAction:action withName:name];
 		} else {
 			NSString *answer = [alert.textFields objectAtIndex:0].text;
 			NSString *solution = nil;
@@ -371,9 +376,9 @@ BOOL showsNextAlarm = NO;
 			}
 
 			if ([answer isEqual:solution]) {
-				[self _handleOrigAction:action withName:name];
+				[currentCS _handleOrigAction:action withName:name];
 			} else {
-				[self betterAlarmShowAlertFor:action withName:name];
+				[currentCS betterAlarmShowAlertFor:action withName:name];
 			}
 		}
 	}]];
@@ -397,6 +402,8 @@ BOOL showsNextAlarm = NO;
 			snoozeCount = 0;
 		}
 	}
+
+	currentCS = nil;
 
 	// %orig;
 	_logos_orig$_ungrouped$CSFullscreenNotificationViewController$_handleAction$withName$(self, _cmd, action, name);
