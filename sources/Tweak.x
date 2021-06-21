@@ -16,64 +16,6 @@ BOOL showsNextAlarm = NO;
 
 CSFullscreenNotificationViewController *currentCS;
 
-%ctor {
-	// [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:@"com.noisyflake.betteralarm"];
-	preferences = [[NSUserDefaults alloc] initWithSuiteName:@"com.noisyflake.betteralarm"];
-
-	[preferences registerDefaults:@{
-		@"enabled": @YES,
-
-		@"timerSwapButtons": @YES,
-		@"timerSmartSnooze": @NO, // can't be changed via Settings
-		@"timerPrimaryPercent": @30,
-		@"timerPrimaryBackgroundColor": @"#4292FB:1.00",
-		@"timerPrimaryTextColor": @"#FFFFFF:1.00",
-		@"timerPrimaryTextSize": @48,
-
-		@"timerSecondaryBackgroundColor": @"#000000:0.0",
-		@"timerSecondaryTextColor": @"#FFFFFF:1.00",
-		@"timerSecondaryTextSize": @48,
-
-		@"timerClockTextColor": @"#FFFFFF:0.75",
-		@"timerClockTextSize": @38,
-		
-		@"timerTitleTextColor": @"#FFFFFF:0.75",
-		@"timerTitleTextSize": @24,
-
-		@"alarmSwapButtons": @NO,
-		@"alarmBlockHardwareButtons": @NO,
-		@"alarmSmartSnooze": @NO,
-		@"alarmSmartSnoozeAmount": @3,
-		@"alarmPrimaryPercent": @30,
-		@"alarmStopConfirmationType": @"none",
-		@"alarmSnoozeConfirmationType": @"none",
-		@"alarmPrimaryBackgroundColor": @"#000000:0.00",
-		@"alarmPrimaryTextColor": @"#FFFFFF:1.00",
-		@"alarmPrimaryTextSize": @48,
-
-		@"alarmSecondaryBackgroundColor": @"#A81B1D:1.00",
-		@"alarmSecondaryTextColor": @"#FFFFFF:1.00",
-		@"alarmSecondaryTextSize": @48,
-
-		@"alarmClockTextColor": @"#FFFFFF:0.75",
-		@"alarmClockTextSize": @38,
-		
-		@"alarmTitleTextColor": @"#FFFFFF:0.75",
-		@"alarmTitleTextSize": @24,
-		
-		@"alarmAsCarrier": @"alarmTime",
-		@"alarmAsCarrierMaxTime": @"24",
-		@"alarmAsCarrierCustom": @NO,
-		@"alarmAsCarrierCustomText": @""
-	}];
-
-	NSFileManager *fileManager = [NSFileManager defaultManager];
-
-	if ([fileManager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/ShortLook.dylib"]) {
-		dlopen("/Library/MobileSubstrate/DynamicLibraries/ShortLook.dylib", RTLD_LAZY);
-	}
-}
-
 %hook CSFullscreenNotificationView
 %property (retain, nonatomic) UILabel * currentTime;
 %property (retain, nonatomic) UILabel * alarmTitle;
@@ -506,6 +448,7 @@ static NSString *keyFor(NSString *key) {
 
 // -------------------- ALARM AS CARRIER ----------------------- //
 
+%group CarrierAlarm
 %hook _UIStatusBarCellularItem
 -(_UIStatusBarStringView *)serviceNameView {
 	_UIStatusBarStringView *orig = %orig;
@@ -607,3 +550,67 @@ static NSString *keyFor(NSString *key) {
 	return %orig;
 }
 %end
+%end
+
+%ctor {
+	// [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:@"com.noisyflake.betteralarm"];
+	preferences = [[NSUserDefaults alloc] initWithSuiteName:@"com.noisyflake.betteralarm"];
+
+	[preferences registerDefaults:@{
+		@"enabled": @YES,
+
+		@"timerSwapButtons": @YES,
+		@"timerSmartSnooze": @NO, // can't be changed via Settings
+		@"timerPrimaryPercent": @30,
+		@"timerPrimaryBackgroundColor": @"#4292FB:1.00",
+		@"timerPrimaryTextColor": @"#FFFFFF:1.00",
+		@"timerPrimaryTextSize": @48,
+
+		@"timerSecondaryBackgroundColor": @"#000000:0.0",
+		@"timerSecondaryTextColor": @"#FFFFFF:1.00",
+		@"timerSecondaryTextSize": @48,
+
+		@"timerClockTextColor": @"#FFFFFF:0.75",
+		@"timerClockTextSize": @38,
+		
+		@"timerTitleTextColor": @"#FFFFFF:0.75",
+		@"timerTitleTextSize": @24,
+
+		@"alarmSwapButtons": @NO,
+		@"alarmBlockHardwareButtons": @NO,
+		@"alarmSmartSnooze": @NO,
+		@"alarmSmartSnoozeAmount": @3,
+		@"alarmPrimaryPercent": @30,
+		@"alarmStopConfirmationType": @"none",
+		@"alarmSnoozeConfirmationType": @"none",
+		@"alarmPrimaryBackgroundColor": @"#000000:0.00",
+		@"alarmPrimaryTextColor": @"#FFFFFF:1.00",
+		@"alarmPrimaryTextSize": @48,
+
+		@"alarmSecondaryBackgroundColor": @"#A81B1D:1.00",
+		@"alarmSecondaryTextColor": @"#FFFFFF:1.00",
+		@"alarmSecondaryTextSize": @48,
+
+		@"alarmClockTextColor": @"#FFFFFF:0.75",
+		@"alarmClockTextSize": @38,
+		
+		@"alarmTitleTextColor": @"#FFFFFF:0.75",
+		@"alarmTitleTextSize": @24,
+		
+		@"alarmAsCarrier": @"alarmTime",
+		@"alarmAsCarrierMaxTime": @"24",
+		@"alarmAsCarrierCustom": @NO,
+		@"alarmAsCarrierCustomText": @""
+	}];
+
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+
+	if ([fileManager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/ShortLook.dylib"]) {
+		dlopen("/Library/MobileSubstrate/DynamicLibraries/ShortLook.dylib", RTLD_LAZY);
+	}
+
+	%init(_ungrouped);
+	if ([[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"alarmTime"] || [[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"timeUntilAlarm"]) {
+		%init(CarrierAlarm);
+	}
+}

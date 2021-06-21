@@ -1,4 +1,5 @@
 #include "PreferenceHeaders.h"
+#import <spawn.h>
 
 @implementation BetterAlarmPreviewController
 
@@ -24,6 +25,13 @@
 	return _specifiers;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+
+    UIBarButtonItem *applyButton = [[UIBarButtonItem alloc] initWithTitle:@"Respring" style:UIBarButtonItemStylePlain target:self action:@selector(respring)];
+	self.navigationItem.rightBarButtonItem = applyButton;
+}
+
 - (void)setWithReload:(id)value specifier:(PSSpecifier*)specifier {
 	[super setPreferenceValue:value specifier:specifier];
 	[self reloadSpecifiers];
@@ -45,6 +53,14 @@
 	} else {
 		[self removeSpecifierID:@"alarmAsCarrierCustomText" animated:YES];
 	}
+}
+
+-(void)respring {
+	[self.view endEditing:YES];
+
+	pid_t pid;
+	const char* args[] = {"sbreload", NULL};
+	posix_spawn(&pid, "/usr/bin/sbreload", NULL, NULL, (char* const*)args, NULL);
 }
 
 @end
