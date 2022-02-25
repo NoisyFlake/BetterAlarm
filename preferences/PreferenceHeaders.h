@@ -71,6 +71,9 @@
 @interface BetterAlarmAlarmsController : BetterAlarmBaseController
 @end
 
+@interface BetterAlarmQRController : BetterAlarmBaseController
+@end
+
 @interface PSListItemsController : PSListController
 @end
 

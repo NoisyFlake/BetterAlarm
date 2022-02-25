@@ -6,9 +6,6 @@
 	[super viewDidLayoutSubviews];
 
 	self.navigationItem.navigationBar.tintColor = kBETTERALARMCOLOR;
-
-	UITableView *table = [self valueForKey:@"_table"];
-	table.separatorStyle = 0;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>                         <string>PSGroupCell</string>
+			<key>footerText</key>					<string>Save and print out this QR code if you want to use the QR code feature to turn off the alarm.&#xA;&#xA;Alternatively, you can create your own QR code with the following text:&#xA;&#xA;com.noisyflake.betteralarm/stop</string>
+            <key>footerAlignment</key> 			    <string>1</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>QR Code</string>
+</dict>
+</plist>

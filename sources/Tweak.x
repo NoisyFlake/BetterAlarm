@@ -1,3 +1,5 @@
+#import <AVFoundation/AVFoundation.h>
+#import "QRScanView.h"
 #import "Headers.h"
 #import "ColorUtils.h"
 #include <dlfcn.h>
@@ -6,6 +8,7 @@ NSUserDefaults *preferences;
 
 BOOL isAlarmActive = NO;
 BOOL isTimerActive = NO;
+BOOL isQRScanActive = NO;
 NSString *currentCategory = nil;
 NSString *alarmId = nil;
 NSInteger snoozeCount = 0;
@@ -15,6 +18,10 @@ UIFont *emphasizedFont;
 BOOL showsNextAlarm = NO;
 
 CSFullscreenNotificationViewController *currentCS;
+AVCaptureSession *captureSession;
+
+NCNotificationAction *stopAction;
+id stopName;
 
 %hook CSFullscreenNotificationView
 %property (retain, nonatomic) UILabel * currentTime;
@@ -75,7 +82,9 @@ CSFullscreenNotificationViewController *currentCS;
 		[self addSubview:self.alarmTitle];
 	}
 
-	clearScreen(self, YES);
+	dispatch_async(dispatch_get_main_queue(), ^{
+		clearScreen(self, YES);
+	});
 }
 %end
 
@@ -239,6 +248,7 @@ CSFullscreenNotificationViewController *currentCS;
 %end
 
 %hook CSFullscreenNotificationViewController
+%property CGRect scanRect;
 
 - (void)_handleAction:(NCNotificationAction *)action withName:(id)name {
 
@@ -247,12 +257,25 @@ CSFullscreenNotificationViewController *currentCS;
 		return;
 	}
 
-	if ((![[preferences valueForKey:@"alarmStopConfirmationType"] isEqual:@"none"] && ( [action.identifier isEqual:@"MTAlarmDismissAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationDismissActionIdentifier"]) )) 
-		|| (![[preferences valueForKey:@"alarmSnoozeConfirmationType"] isEqual:@"none"] && ( [action.identifier isEqual:@"MTAlarmSnoozeAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationSilenceActionIdentifier"]) ))) {
+	// Save for later use
+	stopAction = action;
+	stopName = name;
+
+	BOOL wantsAlarmStop = [action.identifier isEqual:@"MTAlarmDismissAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationDismissActionIdentifier"]);
+	BOOL wantsAlarmSnooze = [action.identifier isEqual:@"MTAlarmSnoozeAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationSilenceActionIdentifier"]);
+
+	NSString *confirmation = wantsAlarmStop ? [preferences valueForKey:@"alarmStopConfirmationType"] : wantsAlarmSnooze ? [preferences valueForKey:@"alarmSnoozeConfirmationType"] : @"none";
+
+	if ([confirmation isEqual:@"simple"] || [confirmation isEqual:@"math"]) {
 		[self betterAlarmShowAlertFor:action withName:name];
+	} else if ([confirmation isEqual:@"qrcode"]) {
+		if (!isQRScanActive) {
+			[self startQRCapture];
+		}
 	} else {
 		[self _handleOrigAction:action withName:name];
 	}
+
 }
 
 %new
@@ -352,7 +375,11 @@ CSFullscreenNotificationViewController *currentCS;
 
 	isAlarmActive = NO;
 	isTimerActive = NO;
-	clearScreen(self.view, NO);
+
+	dispatch_async(dispatch_get_main_queue(), ^{
+		clearScreen(self.view, NO);
+	});
+	
 }
 
 - (void)loadView {
@@ -372,6 +399,63 @@ CSFullscreenNotificationViewController *currentCS;
 	}
 	
 }
+
+%new
+- (void)startQRCapture {
+	isQRScanActive = YES;
+
+	CGFloat scanRectSize = 200;
+	self.scanRect = CGRectMake((self.view.frame.size.width / 2) - (scanRectSize / 2), (self.view.frame.size.height / 2) - (scanRectSize / 2), scanRectSize, scanRectSize);
+
+	captureSession = [[AVCaptureSession alloc] init];
+	[captureSession beginConfiguration];
+
+	AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+	NSError *error;
+	AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
+	[captureSession addInput:deviceInput];
+
+	AVCaptureVideoPreviewLayer *previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:captureSession];
+	previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+	previewLayer.frame = self.view.frame;
+	previewLayer.backgroundColor = UIColor.blackColor.CGColor;
+	[self.view.layer addSublayer:previewLayer];
+
+	AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
+	[metadataOutput setMetadataObjectsDelegate:(id)self queue:dispatch_queue_create("sample buffer delegate", DISPATCH_QUEUE_SERIAL)];
+	[captureSession addOutput:metadataOutput];
+	metadataOutput.metadataObjectTypes = @[AVMetadataObjectTypeQRCode];
+
+	__weak typeof(self) weakSelf = self;
+	[[NSNotificationCenter defaultCenter] addObserverForName:AVCaptureInputPortFormatDescriptionDidChangeNotification
+														object:nil
+														queue:[NSOperationQueue currentQueue]
+													usingBlock: ^(NSNotification *_Nonnull note) {
+		metadataOutput.rectOfInterest = [previewLayer metadataOutputRectOfInterestForRect:weakSelf.scanRect];
+	}];
+
+	QRScanView *scanView = [[QRScanView alloc] initWithScanRect:self.scanRect];
+	[self.view addSubview:scanView];
+
+	[captureSession commitConfiguration];
+	[captureSession startRunning];
+}
+
+%new
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
+	AVMetadataMachineReadableCodeObject *metadataObject = metadataObjects.firstObject;
+	NSString *strValue = metadataObject.stringValue;
+
+	if ([strValue isEqualToString:@"com.noisyflake.betteralarm/stop"]) {
+		isQRScanActive = NO;
+		[captureSession stopRunning];
+		[self _handleOrigAction:stopAction withName:stopName];
+	} else {
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"com.noisyflake.betteralarm/scanInvalid" object:self];
+	}
+	
+}
+
 %end
 
 %hook SpringBoard
@@ -383,7 +467,7 @@ CSFullscreenNotificationViewController *currentCS;
 	if (isAlarmActive && arg1 && [arg1 allPresses]) {
 		int type = [[[arg1 allPresses] allObjects][0] type];
 
-		if ([preferences boolForKey:@"alarmBlockHardwareButtons"]) {
+		if ([preferences boolForKey:@"alarmBlockHardwareButtons"] || isQRScanActive) {
 			if (type == 101 || type == 102 || type == 103 || type == 104) {
 
 				SBBacklightController *backlight = [%c(SBBacklightController) sharedInstance];
@@ -552,7 +636,24 @@ static NSString *keyFor(NSString *key) {
 %end
 %end
 
+%group MediaServerPatch
+%hook FigCaptureClientSessionMonitor
+-(void)_updateClientStateCondition:(void*)arg1 newValue:(id)arg2  { 
+	// Allow background usage of the camera for SpringBoard
+	if ([self.applicationID isEqualToString:@"com.apple.springboard"]) return;
+	
+	%orig; 
+}
+%end
+%end
+
+
 %ctor {
+	if (![@"SpringBoard" isEqualToString:[NSProcessInfo processInfo].processName]) {
+		// We are in mediaserverd
+		%init(MediaServerPatch);
+		return;
+	}
 	// [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:@"com.noisyflake.betteralarm"];
 	preferences = [[NSUserDefaults alloc] initWithSuiteName:@"com.noisyflake.betteralarm"];
 
@@ -577,7 +678,7 @@ static NSString *keyFor(NSString *key) {
 		@"timerTitleTextSize": @24,
 
 		@"alarmSwapButtons": @NO,
-		@"alarmBlockHardwareButtons": @NO,
+		@"alarmBlockHardwareButtons": @YES,
 		@"alarmSmartSnooze": @NO,
 		@"alarmSmartSnoozeAmount": @3,
 		@"alarmPrimaryPercent": @30,

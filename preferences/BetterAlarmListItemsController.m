@@ -6,7 +6,6 @@
     [super viewWillAppear:animated];
 
     UITableView *table = [self valueForKey:@"_table"];
-	table.separatorStyle = 0;
     table.tintColor = kBETTERALARMCOLOR;
 }
 

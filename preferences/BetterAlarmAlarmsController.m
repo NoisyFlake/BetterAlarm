@@ -64,18 +64,14 @@
 - (void)setConfirmation:(id)value specifier:(PSSpecifier*)specifier {
 	[super setPreferenceValue:value specifier:specifier];
 
-	if ([value boolValue] == YES) {
-		if ([self specifierForID:@"alarmConfirmationType"] == nil) {
-			NSArray *specifiers = [self loadSpecifiersFromPlistName:@"Alarms" target:self];
-			for (PSSpecifier *spec in specifiers) {
-				if ([spec.properties[@"id"] isEqual:@"alarmConfirmationType"]) {
-					[self insertSpecifier:spec afterSpecifierID:@"alarmConfirmation" animated:YES];
-					break;
-				}
-			}
-		}
-	} else {
-		[self removeSpecifierID:@"alarmConfirmationType" animated:YES];
+	if ([value isEqualToString:@"qrcode"]) {
+		UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Important"
+									message: @"Make sure to print out the QR code found in the main menu before using this option. You can't disable the alarm without it!"
+									preferredStyle:UIAlertControllerStyleAlert];
+
+		[alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+
+		[self presentViewController:alert animated:YES completion:nil];
 	}
 }
 

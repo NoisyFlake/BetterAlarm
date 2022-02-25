@@ -49,6 +49,12 @@
 			<key>label</key>						<string>Settings</string>
 		</dict>
 		<dict>
+			<key>cell</key>							<string>PSLinkCell</string>
+			<key>isController</key>					<true/>
+			<key>detail</key>						<string>BetterAlarmQRController</string>
+			<key>label</key>						<string>QR Code</string>
+		</dict>
+		<dict>
 			<key>cell</key>							<string>PSButtonCell</string>
 			<key>action</key>						<string>resetSettings</string>
 			<key>icon</key>							<string>icons/reset</string>

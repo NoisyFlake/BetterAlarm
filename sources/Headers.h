@@ -42,10 +42,12 @@
 @property (nonatomic,copy,readonly) NSString * notificationIdentifier;
 @end
 
-@interface CSFullscreenNotificationViewController : UIViewController
+@interface CSFullscreenNotificationViewController : UIViewController <AVCaptureMetadataOutputObjectsDelegate>
+@property (nonatomic, assign) CGRect scanRect;
 @property (nonatomic, strong, readwrite) NCNotificationRequest *notificationRequest;
 - (void)betterAlarmShowAlertFor:action withName:name;
 - (void)_handleOrigAction:(NCNotificationAction *)action withName:(id)name;
+- (void)startQRCapture;
 @end
 
 @interface CSTeachableMomentsContainerView : UIView
@@ -107,6 +109,10 @@
 
 @interface UIImage (Reliquia)
 - (UIImage *)scaleImageToSize:(CGSize)newSize;
+@end
+
+@interface FigCaptureClientSessionMonitor : NSObject
+@property (readonly) NSString * applicationID; 
 @end
 
 static void clearScreen(UIView *view, BOOL clear);
