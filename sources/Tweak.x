@@ -467,19 +467,26 @@ id stopName;
 	if (isAlarmActive && arg1 && [arg1 allPresses]) {
 		int type = [[[arg1 allPresses] allObjects][0] type];
 
-		if ([preferences boolForKey:@"alarmBlockHardwareButtons"] || isQRScanActive) {
-			if (type == 101 || type == 102 || type == 103 || type == 104) {
+		BOOL hasStopConfirmation = ![[preferences valueForKey:@"alarmStopConfirmationType"] isEqualToString:@"none"];
+		BOOL hasSnoozeConfirmation = ![[preferences valueForKey:@"alarmSnoozeConfirmationType"] isEqualToString:@"none"];
 
-				SBBacklightController *backlight = [%c(SBBacklightController) sharedInstance];
-				if (!backlight.screenIsOn) {
-					// Wake up the screen
-					SBLockScreenManager *manager = (SBLockScreenManager *)[%c(SBLockScreenManager) sharedInstance];
-					NSDictionary *options = @{ @"SBUIUnlockOptionsTurnOnScreenFirstKey" : [NSNumber numberWithBool:YES] };
-					[manager unlockUIFromSource:6 withOptions:options];
-				}
+		// Home: 101/105 (OFF)
+		// Power: 104 (SNOOZE)
+		// VolDown: 103 (SNOOZE)
+		// VolUp: 102 (SNOOZE)
 
-				return NO;
+		BOOL shouldBlock = (hasStopConfirmation && (type == 101 || type == 105)) || (hasSnoozeConfirmation && (type == 102 || type == 103 || type == 104));
+
+		if (shouldBlock || isQRScanActive) {
+			SBBacklightController *backlight = [%c(SBBacklightController) sharedInstance];
+			if (!backlight.screenIsOn) {
+				// Wake up the screen
+				SBLockScreenManager *manager = (SBLockScreenManager *)[%c(SBLockScreenManager) sharedInstance];
+				NSDictionary *options = @{ @"SBUIUnlockOptionsTurnOnScreenFirstKey" : [NSNumber numberWithBool:YES] };
+				[manager unlockUIFromSource:6 withOptions:options];
 			}
+
+			return NO;
 		}
 	}
 	
@@ -654,7 +661,7 @@ static NSString *keyFor(NSString *key) {
 		%init(MediaServerPatch);
 		return;
 	}
-	// [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:@"com.noisyflake.betteralarm"];
+
 	preferences = [[NSUserDefaults alloc] initWithSuiteName:@"com.noisyflake.betteralarm"];
 
 	[preferences registerDefaults:@{
@@ -678,7 +685,6 @@ static NSString *keyFor(NSString *key) {
 		@"timerTitleTextSize": @24,
 
 		@"alarmSwapButtons": @NO,
-		@"alarmBlockHardwareButtons": @YES,
 		@"alarmSmartSnooze": @NO,
 		@"alarmSmartSnoozeAmount": @3,
 		@"alarmPrimaryPercent": @30,
