@@ -13,40 +13,53 @@
         _statusLabel.textAlignment = NSTextAlignmentCenter;
         _statusLabel.font = [UIFont systemFontOfSize:16];
 		_statusLabel.backgroundColor = UIColor.clearColor;
-		
-		[self resetLabel];
+		_statusLabel.textColor = UIColor.whiteColor;
+		_statusLabel.text = @"Scan QR Code:";
+
         [self addSubview:_statusLabel];
 
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setLabelToInvalid) name:@"com.noisyflake.betteralarm/scanInvalid" object:nil];
+		_scanBorder = [[UIView alloc] initWithFrame:rect];
+		_scanBorder.layer.borderColor = UIColor.whiteColor.CGColor;
+		_scanBorder.layer.borderWidth = 1;
+		
+		[self addSubview:_scanBorder];
+
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scanFailed) name:@"com.noisyflake.betteralarm/scanInvalid" object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scanSuccessful) name:@"com.noisyflake.betteralarm/scanValid" object:nil];
 	}
 	return self;
 }
 
-- (void)setLabelToInvalid {
-	
+-(void)scanSuccessful {
+	dispatch_async(dispatch_get_main_queue(), ^{
+		_statusLabel.text = @"";
+		_scanBorder.layer.borderColor = UIColor.greenColor.CGColor;
+	});
+}
 
+- (void)scanFailed {
 	dispatch_async(dispatch_get_main_queue(), ^{
 		// Cancel the previous reset request
 		[NSObject cancelPreviousPerformRequestsWithTarget:self];
 
 		_statusLabel.text = @"Code Invalid";
-		_statusLabel.textColor = UIColor.orangeColor;
+		_scanBorder.layer.borderColor = UIColor.redColor.CGColor;
 
-		[self performSelector:@selector(resetLabel) withObject:nil afterDelay:1.0];
+		[self performSelector:@selector(resetView) withObject:nil afterDelay:1.0];
 	});
 }
 
-- (void)resetLabel {
+- (void)resetView {
 	dispatch_async(dispatch_get_main_queue(), ^{
 		_statusLabel.text = @"Scan QR Code:";
-		_statusLabel.textColor = UIColor.whiteColor;
+		_scanBorder.layer.borderColor = UIColor.whiteColor.CGColor;
 	});
 }
 
 - (void)drawRect:(CGRect)rect {
 	CGContextRef ctx = UIGraphicsGetCurrentContext();
 
-	[[[UIColor blackColor] colorWithAlphaComponent:0.5] setFill];
+	[[[UIColor blackColor] colorWithAlphaComponent:0.7] setFill];
 
 	CGMutablePathRef screenPath = CGPathCreateMutable();
 	CGPathAddRect(screenPath, NULL, self.bounds);

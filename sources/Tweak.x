@@ -261,7 +261,7 @@ id stopName;
 	stopAction = action;
 	stopName = name;
 
-	BOOL wantsAlarmStop = [action.identifier isEqual:@"MTAlarmDismissAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationDismissActionIdentifier"]);
+	BOOL wantsAlarmStop = [action.identifier isEqual:@"MTTimerDismissAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationDismissActionIdentifier"]);
 	BOOL wantsAlarmSnooze = [action.identifier isEqual:@"MTAlarmSnoozeAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationSilenceActionIdentifier"]);
 
 	NSString *confirmation = wantsAlarmStop ? [preferences valueForKey:@"alarmStopConfirmationType"] : wantsAlarmSnooze ? [preferences valueForKey:@"alarmSnoozeConfirmationType"] : @"none";
@@ -422,23 +422,25 @@ id stopName;
 	[self.view.layer addSublayer:previewLayer];
 
 	AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
-	[metadataOutput setMetadataObjectsDelegate:(id)self queue:dispatch_queue_create("sample buffer delegate", DISPATCH_QUEUE_SERIAL)];
+	[metadataOutput setMetadataObjectsDelegate:(id)self queue:dispatch_queue_create("com.noisyflake.betteralarm/scanMetadata", DISPATCH_QUEUE_SERIAL)];
 	[captureSession addOutput:metadataOutput];
 	metadataOutput.metadataObjectTypes = @[AVMetadataObjectTypeQRCode];
 
 	__weak typeof(self) weakSelf = self;
-	[[NSNotificationCenter defaultCenter] addObserverForName:AVCaptureInputPortFormatDescriptionDidChangeNotification
+	[[NSNotificationCenter defaultCenter] addObserverForName:AVCaptureSessionDidStartRunningNotification
 														object:nil
 														queue:[NSOperationQueue currentQueue]
-													usingBlock: ^(NSNotification *_Nonnull note) {
+													usingBlock: ^(NSNotification *_Nonnull note) {				
 		metadataOutput.rectOfInterest = [previewLayer metadataOutputRectOfInterestForRect:weakSelf.scanRect];
 	}];
 
 	QRScanView *scanView = [[QRScanView alloc] initWithScanRect:self.scanRect];
 	[self.view addSubview:scanView];
 
-	[captureSession commitConfiguration];
-	[captureSession startRunning];
+	dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+		[captureSession commitConfiguration];
+		[captureSession startRunning];
+	});
 }
 
 %new
@@ -446,10 +448,17 @@ id stopName;
 	AVMetadataMachineReadableCodeObject *metadataObject = metadataObjects.firstObject;
 	NSString *strValue = metadataObject.stringValue;
 
+	// Prevent this from being called while were trying to stop the scanning
+	if (!isQRScanActive) return;
+
 	if ([strValue isEqualToString:@"com.noisyflake.betteralarm/stop"]) {
 		isQRScanActive = NO;
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"com.noisyflake.betteralarm/scanValid" object:self];
 		[captureSession stopRunning];
-		[self _handleOrigAction:stopAction withName:stopName];
+
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[self _handleOrigAction:stopAction withName:stopName];
+		});
 	} else {
 		[[NSNotificationCenter defaultCenter] postNotificationName:@"com.noisyflake.betteralarm/scanInvalid" object:self];
 	}
