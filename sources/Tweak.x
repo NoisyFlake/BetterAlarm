@@ -261,7 +261,7 @@ id stopName;
 	stopAction = action;
 	stopName = name;
 
-	BOOL wantsAlarmStop = [action.identifier isEqual:@"MTTimerDismissAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationDismissActionIdentifier"]);
+	BOOL wantsAlarmStop = [action.identifier isEqual:@"MTAlarmDismissAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationDismissActionIdentifier"]);
 	BOOL wantsAlarmSnooze = [action.identifier isEqual:@"MTAlarmSnoozeAction"] || (isAlarmActive && [action.identifier isEqual:@"com.apple.UNNotificationSilenceActionIdentifier"]);
 
 	NSString *confirmation = wantsAlarmStop ? [preferences valueForKey:@"alarmStopConfirmationType"] : wantsAlarmSnooze ? [preferences valueForKey:@"alarmSnoozeConfirmationType"] : @"none";
@@ -430,7 +430,7 @@ id stopName;
 	[[NSNotificationCenter defaultCenter] addObserverForName:AVCaptureSessionDidStartRunningNotification
 														object:nil
 														queue:[NSOperationQueue currentQueue]
-													usingBlock: ^(NSNotification *_Nonnull note) {				
+													usingBlock: ^(NSNotification *_Nonnull note) {
 		metadataOutput.rectOfInterest = [previewLayer metadataOutputRectOfInterestForRect:weakSelf.scanRect];
 	}];
 
