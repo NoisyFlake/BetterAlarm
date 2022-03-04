@@ -41,7 +41,7 @@
 			<key>isController</key>					<true/>
 			<key>detail</key>						<string>BetterAlarmPreviewController</string>
 			<key>icon</key>							<string>icons/preview</string>
-			<key>label</key>						<string>Alarm Preview</string>
+			<key>label</key>						<string>Alarm in Status Bar</string>
 		</dict>
 
 		<dict>

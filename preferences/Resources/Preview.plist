@@ -6,7 +6,13 @@
 	<array>
 		<dict>
 			<key>cell</key>                         <string>PSGroupCell</string>
-			<key>footerText</key>					<string>Displays next alarm information in the status bar. Enabling or disabling this feature requires a respring.</string>
+			<key>footerText</key>					<string>This features replaces the carrier name in the status bar with the next alarm and allows modifying and disabling the alarm on tap.</string>
+			<key>footerAlignment</key>				<string>1</string>
+			<key>isMainToggle</key>					<true/>
+		</dict>
+		<dict>
+			<key>cell</key>                         <string>PSGroupCell</string>
+			<key>footerText</key>					<string>Enabling or disabling this requires a respring.</string>
 			<key>isMainToggle</key>					<true/>
 		</dict>
 		<dict>
@@ -28,6 +34,10 @@
 														<string>alarmTime</string>
 														<string>timeUntilAlarm</string>
 													</array>
+		</dict>
+		<dict>
+			<key>cell</key>                         <string>PSGroupCell</string>
+			<key>footerText</key>                   <string>The maximum amount of time an alarm can be in the future to still be displayed.</string>
 		</dict>
 		<dict>
 			<key>cell</key>							<string>PSLinkListCell</string>
@@ -84,6 +94,6 @@
 		</dict>
 	</array>
 	<key>title</key>
-	<string>Alarm Preview</string>
+	<string>Alarm in Status Bar</string>
 </dict>
 </plist>

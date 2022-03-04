@@ -549,33 +549,97 @@ static NSString *keyFor(NSString *key) {
 // -------------------- ALARM AS CARRIER ----------------------- //
 
 %group CarrierAlarm
-%hook _UIStatusBarCellularItem
--(_UIStatusBarStringView *)serviceNameView {
-	_UIStatusBarStringView *orig = %orig;
-	orig.isBetterAlarmCarrier = YES;
 
-	return orig;
+@implementation BetterAlarmStatusBarStringView
+-(void)didMoveToWindow {
+	[super didMoveToWindow];
+	
+	UITapGestureRecognizer *singlePress = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleBetterAlarmTap)];
+	[self setUserInteractionEnabled:YES];
+	[self addGestureRecognizer:singlePress];
 }
-%end
-
-%hook _UIStatusBarStringView
-%property (nonatomic, assign) BOOL isBetterAlarmCarrier;
 
 -(void)applyStyleAttributes:(_UIStatusBarStyleAttributes *)arg1 {
+	[super applyStyleAttributes:arg1];
 
-	if (self.isBetterAlarmCarrier) {
-		if (regularFont == nil) regularFont = arg1.font;
-		if (emphasizedFont == nil) emphasizedFont = arg1.emphasizedFont;
+	if (showsNextAlarm) {
+		NSMutableAttributedString *attrString = [self.attributedText mutableCopy];
+		[attrString addAttribute:NSFontAttributeName value:arg1.emphasizedFont range:NSMakeRange(0, attrString.length)];
 
-		arg1.font = showsNextAlarm ? emphasizedFont : regularFont;
+		self.attributedText = attrString;
 	}
+}
 
-	%orig;
+-(void)handleBetterAlarmTap {
+	if (!showsNextAlarm) return;
+
+	NSBundle *sleepBundle = [NSBundle bundleWithPath:@"/Applications/SleepLockScreen.app"];
+	NSBundle *timerFramework = [NSBundle bundleWithIdentifier:@"com.apple.mobiletimer-framework"];
+
+	MTAlarmManager *manager = [[%c(SBScheduledAlarmObserver) sharedInstance] valueForKey:@"_alarmManager"];
+	MTAlarm *nextAlarm = manager.cache.nextAlarm;
+	NSString *alarmTime = [NSDateFormatter localizedStringFromDate:nextAlarm.nextFireDate dateStyle:NSDateFormatterNoStyle timeStyle:NSDateFormatterShortStyle];
+
+	NSString *title = [NSString stringWithFormat:[sleepBundle localizedStringForKey:@"UPCOMING_ALARM_FORMAT" value:@"%@" table:nil], alarmTime];
+
+	UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:title preferredStyle:UIAlertControllerStyleActionSheet];
+
+	UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:[sleepBundle localizedStringForKey:@"ALARM_ALERT_CANCEL" value:@"Cancel" table:nil] style:UIAlertActionStyleCancel handler:^(UIAlertAction * action) {}];
+	[alertController addAction:cancelAction];
+
+	UIAlertAction *editAction = [UIAlertAction actionWithTitle:[sleepBundle localizedStringForKey:@"ALARM_ALERT_CHANGE" value:@"Change Alarm" table:nil] style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+		SBLockScreenManager *manager = (SBLockScreenManager *)[%c(SBLockScreenManager) sharedInstance];
+		if ([manager isUILocked]) {
+			[manager lockScreenViewControllerRequestsUnlock];
+		}
+
+		if (nextAlarm.sleepSchedule) {
+			[(SpringBoard *)[objc_getClass("SpringBoard") sharedApplication] applicationOpenURL:[NSURL URLWithString:@"clock-sleep-alarm:edit"]];
+		} else {
+			[(SpringBoard *)[objc_getClass("SpringBoard") sharedApplication] applicationOpenURL:[NSURL URLWithString:@"clock-alarm:default"]];
+		}
+		
+		
+    }];
+	[alertController addAction:editAction];
+
+	if (nextAlarm.repeats || nextAlarm.sleepSchedule) {
+		UIAlertActionStyle style = nextAlarm.sleepSchedule ? UIAlertActionStyleDestructive : UIAlertActionStyleDefault;
+		UIAlertAction *skipAction = [UIAlertAction actionWithTitle:[sleepBundle localizedStringForKey:@"ALARM_ALERT_SKIP" value:@"Skip Alarm" table:nil] style:style handler:^(UIAlertAction * action) {
+			nextAlarm.keepOffUntilDate = [nextAlarm.nextFireDate dateByAddingTimeInterval:60];
+			[manager updateAlarm:nextAlarm];
+
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
+				[self setText:self.originalText];
+			});
+		}];
+		[alertController addAction:skipAction];
+	}
+	
+	if (!nextAlarm.sleepSchedule) {
+		UIAlertAction *disableAction = [UIAlertAction actionWithTitle:[timerFramework localizedStringForKey:@"HSPhsP" value:@"Disable Alarm" table:@"AlarmIntents"] style:UIAlertActionStyleDestructive handler:^(UIAlertAction * action) {
+			nextAlarm.enabled = NO;
+			[manager updateAlarm:nextAlarm];
+
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
+				[self setText:self.originalText];
+			});
+			
+		}];
+		[alertController addAction:disableAction];
+	}
+	
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+	[[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertController animated: YES completion: nil];
+	#pragma clang diagnostic pop
 }
 
 -(void)setText:(NSString *)text {
-	if (self.isBetterAlarmCarrier) {
 		showsNextAlarm = NO;
+
+		// Save this so we can call setText later when the user manually disabled the alarm
+		if (self.originalText == nil) self.originalText = text;
 
 		if ([[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"alarmTime"] || [[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"timeUntilAlarm"]) {
 			MTAlarmManager *manager = [[%c(SBScheduledAlarmObserver) sharedInstance] valueForKey:@"_alarmManager"];
@@ -626,6 +690,12 @@ static NSString *keyFor(NSString *key) {
 				[attributedString insertAttributedString:[[NSMutableAttributedString alloc] initWithString:@" "] atIndex:0];
 				[attributedString insertAttributedString:attrStringWithImage atIndex:0];
 
+				// Set the bold text here. Usually it gets set in applyStyleAttributes, but after a respring setText gets called after that, therefore overwriting the attributes
+				NSDictionary *attributesFromString = [self.attributedText attributesAtIndex:0 longestEffectiveRange:nil inRange:NSMakeRange(0, self.attributedText.length)];
+				if (attributesFromString[NSFontAttributeName]) {
+					[attributedString addAttribute:NSFontAttributeName value:attributesFromString[NSFontAttributeName] range:NSMakeRange(0, attributedString.length)];
+				}
+
 				self.attributedText = attributedString;
 				showsNextAlarm = YES;
 
@@ -636,9 +706,16 @@ static NSString *keyFor(NSString *key) {
 			}
 		} 
 
-	}
+	[super setText:text];
+}
 
+@end
+%hook _UIStatusBarCellularItem
+-(void)_create_serviceNameView {
 	%orig;
+
+	_UIStatusBarStringView *view = [self serviceNameView];
+	object_setClass(view, [BetterAlarmStatusBarStringView class]);
 }
 %end
 

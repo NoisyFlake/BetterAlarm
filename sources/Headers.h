@@ -69,7 +69,9 @@
 
 @interface SBLockScreenManager : NSObject
 +(id)sharedInstance;
--(BOOL)unlockUIFromSource:(int)arg1 withOptions:(id)arg2 ;
+-(BOOL)unlockUIFromSource:(int)arg1 withOptions:(id)arg2;
+-(BOOL)isUILocked;
+-(void)lockScreenViewControllerRequestsUnlock;
 @end
 
 @interface DDNotificationView : UIView
@@ -82,11 +84,16 @@
 @end
 
 @interface _UIStatusBarStringView : UILabel
-@property (nonatomic, assign) BOOL isBetterAlarmCarrier;
+@property (nonatomic,copy) NSString * originalText;
+-(void)applyStyleAttributes:(_UIStatusBarStyleAttributes *)arg1;
 @end
 
 @interface MTAlarm : NSObject
 @property (nonatomic,readonly) NSDate * nextFireDate;
+@property (assign,getter=isEnabled,nonatomic) BOOL enabled;
+@property (nonatomic,readonly) BOOL repeats;
+@property (nonatomic,copy) NSDate * keepOffUntilDate;
+@property (assign,nonatomic) BOOL sleepSchedule;
 @end
 
 @interface MTAlarmCache : NSObject
@@ -95,6 +102,7 @@
 
 @interface MTAlarmManager : NSObject
 @property (nonatomic,retain) MTAlarmCache * cache;
+-(id)updateAlarm:(id)arg1 ;
 @end
 
 @interface _UIStatusBarItem : NSObject
@@ -107,12 +115,19 @@
 @interface _UIStatusBarIndicatorItem : _UIStatusBarItem
 @end
 
-@interface UIImage (Reliquia)
+@interface BetterAlarmStatusBarStringView : _UIStatusBarStringView
+@end
+
+@interface UIImage (BetterAlarm)
 - (UIImage *)scaleImageToSize:(CGSize)newSize;
 @end
 
 @interface FigCaptureClientSessionMonitor : NSObject
 @property (readonly) NSString * applicationID; 
+@end
+
+@interface SpringBoard : UIApplication
+-(void)applicationOpenURL:(id)arg1;
 @end
 
 static void clearScreen(UIView *view, BOOL clear);
