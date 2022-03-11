@@ -58,7 +58,7 @@
 			<key>cellClass</key>					<string>BetterAlarmSlider</string>
 			<key>id</key>							<string>buttonSizeSlider</string>
 			<key>key</key>							<string>alarmPrimaryPercent</string>
-			<key>default</key>						<integer>30</integer>
+			<key>default</key>						<integer>50</integer>
 			<key>min</key>							<integer>20</integer>
 			<key>max</key>							<integer>80</integer>
 			<key>showValue</key>					<false />
@@ -131,6 +131,14 @@
 			<key>label</key>						<string>Background Color</string>
 		</dict>
 		<dict>
+			<key>cell</key>							<string>PSSwitchCell</string>
+			<key>default</key>						<true/>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>key</key>							<string>alarmSecondaryGradient</string>
+			<key>label</key>						<string>Use Gradient</string>
+			<key>cellClass</key>					<string>BetterAlarmToggle</string>
+		</dict>
+		<dict>
 			<key>cell</key>							<string>PSLinkCell</string>
 			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
@@ -160,7 +168,15 @@
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>key</key>							<string>alarmPrimaryBackgroundColor</string>
 			<key>label</key>						<string>Background Color</string>
-			<key>default</key>						<string>#000000:0.00</string>
+			<key>default</key>						<string>#000000:1.00</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSSwitchCell</string>
+			<key>default</key>						<false/>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>key</key>							<string>alarmPrimaryGradient</string>
+			<key>label</key>						<string>Use Gradient</string>
+			<key>cellClass</key>					<string>BetterAlarmToggle</string>
 		</dict>
 		<dict>
 			<key>cell</key>							<string>PSLinkCell</string>

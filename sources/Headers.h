@@ -18,6 +18,7 @@
 
 @interface UIButton (BetterAlarm)
 @property (retain, nonatomic) UIView * betterAlarmBlurView;
+@property (retain, nonatomic) CAGradientLayer * betterAlarmGradientLayer;
 @end
 
 @interface CSModalView : UIView

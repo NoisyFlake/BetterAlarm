@@ -90,6 +90,7 @@ id stopName;
 
 %hook UIButton
 %property (retain, nonatomic) UIView * betterAlarmBlurView;
+%property (retain, nonatomic) CAGradientLayer * betterAlarmGradientLayer;
 
 - (void)layoutSubviews {
 	%orig;
@@ -149,9 +150,9 @@ id stopName;
 		CGFloat alpha = 0.0;
 		[backgroundColor getRed:nil green:nil blue:nil alpha:&alpha];
 
-		if (alpha < 1 && !self.betterAlarmBlurView) {
-			self.backgroundColor = UIColor.clearColor;
+		self.backgroundColor = alpha < 1 ? UIColor.clearColor : backgroundColor;
 
+		if (alpha < 1 && !self.betterAlarmBlurView) {
 			UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
 			UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
 			blurEffectView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height + 1);
@@ -162,8 +163,28 @@ id stopName;
 			[self insertSubview:blurEffectView belowSubview:self.titleLabel];
 
 			self.betterAlarmBlurView = blurEffectView;
-		} else {
-			self.backgroundColor = backgroundColor;
+		}
+
+		if ([preferences boolForKey:keyFor(@"PrimaryGradient")] && !self.betterAlarmGradientLayer) {
+			CAGradientLayer *gradient = [CAGradientLayer layer];
+			gradient.colors = [NSArray arrayWithObjects: (id)[backgroundColor betterAlarmLighterColor].CGColor, (id)backgroundColor.CGColor, nil];
+			gradient.frame = self.bounds;
+			gradient.type = kCAGradientLayerRadial;
+
+			gradient.startPoint = CGPointMake(0.5, 0.5);
+			if (self.bounds.size.width < self.bounds.size.height) {
+				gradient.endPoint = CGPointMake(0.5 + 0.5 * (self.bounds.size.height / self.bounds.size.width), 1);
+			} else {
+				gradient.endPoint = CGPointMake(1, 0.5 + 0.5 * (self.bounds.size.width / self.bounds.size.height));
+			}
+
+			if (self.betterAlarmBlurView) {
+				[[self.betterAlarmBlurView layer] insertSublayer:gradient atIndex:0];
+			} else {
+				[[self layer] insertSublayer:gradient atIndex:0];
+			}
+
+			self.betterAlarmGradientLayer = gradient;
 		}
 
 	} else if (self == mainView.secondaryActionButton && !isAlarmWithoutSnooze) {
@@ -193,9 +214,9 @@ id stopName;
 		CGFloat alpha = 0.0;
 		[backgroundColor getRed:nil green:nil blue:nil alpha:&alpha];
 
-		if (alpha < 1 && !self.betterAlarmBlurView) {
-			self.backgroundColor = UIColor.clearColor;
+		self.backgroundColor = alpha < 1 ? UIColor.clearColor : backgroundColor;
 
+		if (alpha < 1 && !self.betterAlarmBlurView) {
 			UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
 			UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
 			blurEffectView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height + 1);
@@ -206,8 +227,28 @@ id stopName;
 			[self insertSubview:blurEffectView belowSubview:self.titleLabel];
 
 			self.betterAlarmBlurView = blurEffectView;
-		} else {
-			self.backgroundColor = backgroundColor;
+		}
+
+		if ([preferences boolForKey:keyFor(@"SecondaryGradient")] && !self.betterAlarmGradientLayer) {
+			CAGradientLayer *gradient = [CAGradientLayer layer];
+			gradient.colors = [NSArray arrayWithObjects: (id)[backgroundColor betterAlarmLighterColor].CGColor, (id)backgroundColor.CGColor, nil];
+			gradient.frame = self.bounds;
+			gradient.type = kCAGradientLayerRadial;
+
+			gradient.startPoint = CGPointMake(0.5, 0.5);
+			if (self.bounds.size.width < self.bounds.size.height) {
+				gradient.endPoint = CGPointMake(0.5 + 0.5 * (self.bounds.size.height / self.bounds.size.width), 1);
+			} else {
+				gradient.endPoint = CGPointMake(1, 0.5 + 0.5 * (self.bounds.size.width / self.bounds.size.height));
+			}
+
+			if (self.betterAlarmBlurView) {
+				[[self.betterAlarmBlurView layer] insertSublayer:gradient atIndex:0];
+			} else {
+				[[self layer] insertSublayer:gradient atIndex:0];
+			}
+
+			self.betterAlarmGradientLayer = gradient;
 		}
 
 	} else if (isAlarmWithoutSnooze) {
@@ -227,9 +268,9 @@ id stopName;
 		CGFloat alpha = 0.0;
 		[backgroundColor getRed:nil green:nil blue:nil alpha:&alpha];
 
-		if (alpha < 1 && !self.betterAlarmBlurView) {
-			self.backgroundColor = UIColor.clearColor;
+		self.backgroundColor = alpha < 1 ? UIColor.clearColor : backgroundColor;
 
+		if (alpha < 1 && !self.betterAlarmBlurView) {
 			UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
 			UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
 			blurEffectView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height + 1);
@@ -240,8 +281,28 @@ id stopName;
 			[self insertSubview:blurEffectView belowSubview:self.titleLabel];
 
 			self.betterAlarmBlurView = blurEffectView;
-		} else {
-			self.backgroundColor = backgroundColor;
+		}
+
+		if ([preferences boolForKey:keyFor(@"SecondaryGradient")] && !self.betterAlarmGradientLayer) {
+			CAGradientLayer *gradient = [CAGradientLayer layer];
+			gradient.colors = [NSArray arrayWithObjects: (id)[backgroundColor betterAlarmLighterColor].CGColor, (id)backgroundColor.CGColor, nil];
+			gradient.frame = self.bounds;
+			gradient.type = kCAGradientLayerRadial;
+
+			gradient.startPoint = CGPointMake(0.5, 0.5);
+			if (self.bounds.size.width < self.bounds.size.height) {
+				gradient.endPoint = CGPointMake(0.5 + 0.5 * (self.bounds.size.height / self.bounds.size.width), 1);
+			} else {
+				gradient.endPoint = CGPointMake(1, 0.5 + 0.5 * (self.bounds.size.width / self.bounds.size.height));
+			}
+
+			if (self.betterAlarmBlurView) {
+				[[self.betterAlarmBlurView layer] insertSublayer:gradient atIndex:0];
+			} else {
+				[[self layer] insertSublayer:gradient atIndex:0];
+			}
+
+			self.betterAlarmGradientLayer = gradient;
 		}
 	}
 }
@@ -756,11 +817,13 @@ static NSString *keyFor(NSString *key) {
 		@"timerSwapButtons": @YES,
 		@"timerSmartSnooze": @NO, // can't be changed via Settings
 		@"timerPrimaryPercent": @30,
-		@"timerPrimaryBackgroundColor": @"#4292FB:1.00",
+		@"timerPrimaryBackgroundColor": @"#415F86:1.00",
+		@"timerPrimaryGradient": @YES,
 		@"timerPrimaryTextColor": @"#FFFFFF:1.00",
 		@"timerPrimaryTextSize": @48,
 
-		@"timerSecondaryBackgroundColor": @"#000000:0.0",
+		@"timerSecondaryBackgroundColor": @"#000000:1.00",
+		@"timerSecondaryGradient": @NO,
 		@"timerSecondaryTextColor": @"#FFFFFF:1.00",
 		@"timerSecondaryTextSize": @48,
 
@@ -773,14 +836,16 @@ static NSString *keyFor(NSString *key) {
 		@"alarmSwapButtons": @NO,
 		@"alarmSmartSnooze": @NO,
 		@"alarmSmartSnoozeAmount": @3,
-		@"alarmPrimaryPercent": @30,
+		@"alarmPrimaryPercent": @50,
 		@"alarmStopConfirmationType": @"none",
 		@"alarmSnoozeConfirmationType": @"none",
-		@"alarmPrimaryBackgroundColor": @"#000000:0.00",
+		@"alarmPrimaryBackgroundColor": @"#000000:1.00",
+		@"alarmPrimaryGradient": @NO,
 		@"alarmPrimaryTextColor": @"#FFFFFF:1.00",
 		@"alarmPrimaryTextSize": @48,
 
 		@"alarmSecondaryBackgroundColor": @"#A81B1D:1.00",
+		@"alarmSecondaryGradient": @YES,
 		@"alarmSecondaryTextColor": @"#FFFFFF:1.00",
 		@"alarmSecondaryTextSize": @48,
 

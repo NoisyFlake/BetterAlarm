@@ -50,7 +50,15 @@
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>key</key>							<string>timerPrimaryBackgroundColor</string>
 			<key>label</key>						<string>Background Color</string>
-			<key>default</key>						<string>#4292FB:1.00</string>
+			<key>default</key>						<string>#415F86:1.00</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSSwitchCell</string>
+			<key>default</key>						<true/>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>key</key>							<string>timerPrimaryGradient</string>
+			<key>label</key>						<string>Use Gradient</string>
+			<key>cellClass</key>					<string>BetterAlarmToggle</string>
 		</dict>
 		<dict>
 			<key>cell</key>							<string>PSLinkCell</string>
@@ -81,8 +89,16 @@
 			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>key</key>							<string>timerSecondaryBackgroundColor</string>
-			<key>default</key>						<string>#000000:0.00</string>
+			<key>default</key>						<string>#000000:1.00</string>
 			<key>label</key>						<string>Background Color</string>
+		</dict>
+		<dict>
+			<key>cell</key>							<string>PSSwitchCell</string>
+			<key>default</key>						<false/>
+			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
+			<key>key</key>							<string>timerSecondaryGradient</string>
+			<key>label</key>						<string>Use Gradient</string>
+			<key>cellClass</key>					<string>BetterAlarmToggle</string>
 		</dict>
 		<dict>
 			<key>cell</key>							<string>PSLinkCell</string>

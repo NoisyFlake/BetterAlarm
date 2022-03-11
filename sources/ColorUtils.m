@@ -33,4 +33,13 @@
                     alpha:alpha];
 }
 
+- (UIColor *)betterAlarmLighterColor {
+    CGFloat h, s, b, a;
+    if ([self getHue:&h saturation:&s brightness:&b alpha:&a]) {
+        return [UIColor colorWithHue:h saturation:s brightness:MIN(b * 1.4, 1.0) alpha:a];
+    }
+        
+    return nil;
+}
+
 @end
