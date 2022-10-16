@@ -1,6 +1,4 @@
-#import <Preferences/PSListController.h>
-#import <Preferences/PSTableCell.h>
-#import <Preferences/PSSpecifier.h>
+#import <Preferences/Preferences.h>
 
 #define kBETTERALARMCOLOR [UIColor colorWithRed: 0.26 green: 0.57 blue: 0.98 alpha: 1.00] // #4292FB
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
@@ -28,20 +26,6 @@
 
 @interface UINavigationItem (BetterAlarm)
 @property (assign,nonatomic) UINavigationBar * navigationBar;
-@end
-
-@interface PSControlTableCell : PSTableCell
-@property (nonatomic, retain) UIControl *control;
-@end
-
-@interface PSSwitchTableCell : PSControlTableCell
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(id)identifier specifier:(id)specifier;
-@end
-
-@interface PSEditableTableCell : PSTableCell
-@end
-
-@interface PSSliderTableCell : PSControlTableCell
 @end
 
 @interface BetterAlarmButton : PSTableCell
@@ -74,13 +58,8 @@
 @interface BetterAlarmQRController : BetterAlarmBaseController
 @end
 
-@interface PSListItemsController : PSListController
-@end
-
 @interface BetterAlarmListItemsController : PSListItemsController
 @end
-
-
 
 @interface SparkColourPickerView : UIView
 @end

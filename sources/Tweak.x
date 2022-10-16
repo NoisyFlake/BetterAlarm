@@ -1,3 +1,4 @@
+#import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import "QRScanView.h"
 #import "Headers.h"

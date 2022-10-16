@@ -1,3 +1,5 @@
+#import <UIKit/UIKit.h>
+
 // https://gist.github.com/tomasbasham/10533743
 
 @implementation UIImage (scale)

@@ -1,3 +1,4 @@
+#import <UIKit/UIKit.h>
 #import "ColorUtils.h"
 
 @implementation UIColor (BetterAlarm)

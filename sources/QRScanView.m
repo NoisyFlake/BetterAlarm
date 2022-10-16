@@ -1,3 +1,4 @@
+#import <UIKit/UIKit.h>
 #import "QRScanView.h"
 
 @implementation QRScanView
