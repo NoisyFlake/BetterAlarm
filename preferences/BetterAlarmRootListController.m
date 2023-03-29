@@ -69,18 +69,19 @@
 	[self.table setTableHeaderView:header];
 
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-		NSPipe *pipe = [NSPipe pipe];
+		NSPipe *pipe = [NSPipe new];
 
-		NSTask *task = [[NSTask alloc] init];
-		task.arguments = @[@"-c", @"dpkg -s com.noisyflake.betteralarm | grep -i version | cut -d' ' -f2"];
-		task.launchPath = @"/bin/sh";
-		[task setStandardOutput: pipe];
+		NSTask *task = [NSTask new];
+		task.arguments = @[@"--showformat=${Version}", @"--show", @"com.noisyflake.betteralarm"];
+		task.launchPath = ROOT_PATH_NS_VAR(@"/usr/bin/dpkg-query");
+		task.standardOutput = pipe;
 		[task launch];
 		[task waitUntilExit];
 
 		NSFileHandle *file = [pipe fileHandleForReading];
 		NSData *output = [file readDataToEndOfFile];
 		NSString *outputString = [[NSString alloc] initWithData:output encoding:NSUTF8StringEncoding];
+		outputString = [outputString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		[file closeFile];
 
 		dispatch_async(dispatch_get_main_queue(), ^(void){

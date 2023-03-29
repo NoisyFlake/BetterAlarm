@@ -30,9 +30,6 @@
 			<key>default</key>						<integer>30</integer>
 			<key>min</key>							<integer>20</integer>
 			<key>max</key>							<integer>80</integer>
-			<key>showValue</key>					<false />
-			<key>isSegmented</key>					<true />
-			<key>segmentCount</key>					<integer>6</integer>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>leftLabel</key>					<string>Stop</string>
 			<key>rightLabel</key>					<string>Repeat</string>
@@ -50,7 +47,7 @@
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>key</key>							<string>timerPrimaryBackgroundColor</string>
 			<key>label</key>						<string>Background Color</string>
-			<key>default</key>						<string>#415F86:1.00</string>
+			<key>default</key>						<string>0.28015 0.36935 0.51298 1</string>
 		</dict>
 		<dict>
 			<key>cell</key>							<string>PSSwitchCell</string>
@@ -64,7 +61,7 @@
 			<key>cell</key>							<string>PSLinkCell</string>
 			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
-			<key>default</key>						<string>#FFFFFF:1.00</string>
+			<key>default</key>						<string>1 1 1 1</string>
 			<key>key</key>							<string>timerPrimaryTextColor</string>
 			<key>label</key>						<string>Text Color</string>
 		</dict>
@@ -89,7 +86,7 @@
 			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>key</key>							<string>timerSecondaryBackgroundColor</string>
-			<key>default</key>						<string>#000000:1.00</string>
+			<key>default</key>						<string>0 0 0 1</string>
 			<key>label</key>						<string>Background Color</string>
 		</dict>
 		<dict>
@@ -104,7 +101,7 @@
 			<key>cell</key>							<string>PSLinkCell</string>
 			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
-			<key>default</key>						<string>#FFFFFF:1.00</string>
+			<key>default</key>						<string>1 1 1 1</string>
 			<key>key</key>							<string>timerSecondaryTextColor</string>
 			<key>label</key>						<string>Text Color</string>
 		</dict>
@@ -127,7 +124,7 @@
 		<dict>
 			<key>cell</key>							<string>PSLinkCell</string>
 			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
-			<key>default</key>						<string>#FFFFFF:0.75</string>
+			<key>default</key>						<string>1 1 1 0.75</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>key</key>							<string>timerClockTextColor</string>
 			<key>label</key>						<string>Text Color</string>
@@ -151,7 +148,7 @@
 		<dict>
 			<key>cell</key>							<string>PSLinkCell</string>
 			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
-			<key>default</key>						<string>#FFFFFF:0.75</string>
+			<key>default</key>						<string>1 1 1 0.75</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>key</key>							<string>timerTitleTextColor</string>
 			<key>label</key>						<string>Text Color</string>

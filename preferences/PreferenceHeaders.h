@@ -1,4 +1,5 @@
 #import <Preferences/Preferences.h>
+#import <rootless.h>
 
 #define kBETTERALARMCOLOR [UIColor colorWithRed: 0.26 green: 0.57 blue: 0.98 alpha: 1.00] // #4292FB
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
@@ -32,6 +33,8 @@
 @end
 
 @interface BetterAlarmSlider : PSSliderTableCell
+@property (nonatomic, retain) UILabel *leftLabel;
+@property (nonatomic, retain) UILabel *rightLabel;
 @end
 
 @interface BetterAlarmInput : PSEditableTableCell
@@ -61,18 +64,8 @@
 @interface BetterAlarmListItemsController : PSListItemsController
 @end
 
-@interface SparkColourPickerView : UIView
-@end
-
-@interface SparkColourPickerCell : PSTableCell
-@property (nonatomic, strong, readwrite) NSMutableDictionary *options;
-@property (nonatomic, strong, readwrite) SparkColourPickerView *colourPickerView;
--(void)colourPicker:(id)picker didUpdateColour:(UIColor*) colour;
--(void)openColourPicker;
--(void)dismissPicker;
-@end
-
-@interface BetterAlarmColorPicker : SparkColourPickerCell
-@property (nonatomic, retain) UIView *colorPreview;
-@property (nonatomic, retain) UIColor *currentColor;
+@interface BetterAlarmColorPicker : PSTableCell <UIColorPickerViewControllerDelegate>
+@property (nonatomic, retain) UIView *cellColorDisplay;
+@property (nonatomic, retain) UIColor *selectedColor;
+-(void)openColorPicker;
 @end

@@ -2,47 +2,55 @@
 #include "../../sources/ColorUtils.h"
 
 @implementation BetterAlarmColorPicker
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier specifier:(PSSpecifier *)specifier {
+    self = [super initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:identifier specifier:specifier];
 
--(NSString *)previewColor {
-    NSUserDefaults *prefs = [[NSUserDefaults alloc] initWithSuiteName:@"com.noisyflake.betteralarm"];
-    return [prefs valueForKey:[self.specifier propertyForKey:@"key"]] ?: [self.specifier propertyForKey:@"default"];
+    [specifier setTarget:self];
+    [specifier setButtonAction:@selector(openColorPicker)];
+
+    self.cellColorDisplay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 31, 31)];
+    self.cellColorDisplay.layer.cornerRadius = self.cellColorDisplay.frame.size.height / 2;
+    self.cellColorDisplay.layer.borderWidth = 1;
+    self.cellColorDisplay.layer.borderColor = UIColor.systemGrayColor.CGColor;
+    [self setAccessoryView:self.cellColorDisplay];
+
+    return self;
 }
 
--(void)createAccessoryView {
-    _colorPreview = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 29, 29)];
-    _colorPreview.layer.cornerRadius = 29 / 2;
-    // _colorPreview.layer.borderWidth = 1;
+-(void)didMoveToSuperview {
+    [super didMoveToSuperview];
 
-    // _colorPreview.layer.borderColor = UIColor.systemGray2Color.CGColor;
-    _colorPreview.layer.shadowOpacity = 0.5;
-    _colorPreview.layer.shadowOffset = CGSizeZero;
-    _colorPreview.layer.shadowRadius = 5.0;
-    _colorPreview.layer.shadowColor = UIColor.systemGrayColor.CGColor;
-}
-
--(void)updateCellDisplay {
-    // Set necessary options for sparks colorpicker
-    if ([self.options valueForKey:@"defaults"] == nil || [self.options valueForKey:@"fallback"] == nil) {
-        [self.options setObject:@"com.noisyflake.betteralarm" forKey:@"defaults"];
-        [self.options setObject:([self.specifier propertyForKey:@"default"] ?: @"#FFFFFF:1.00") forKey:@"fallback"];
+    PSViewController *psController = (PSViewController*)[self _viewControllerForAncestor];
+    NSString *colorString = [psController readPreferenceValue:self.specifier];
+    if (colorString) {
+        self.selectedColor = [UIColor colorFromP3String:colorString];
     }
-
-    [self.specifier setButtonAction:@selector(openColourPicker)];
-
-    if (_colorPreview == nil) {
-        [self createAccessoryView];
-    }
-
-    if (self.accessoryView != _colorPreview) {
-        // Overwrite sparks colour preview with our custom one
-        self.accessoryView = _colorPreview;
-    }
-
-    _colorPreview.backgroundColor = [UIColor betterAlarmRGBAColorFromHexString:[self previewColor]];
     
-    CGFloat alpha = 0.0;
-	[_colorPreview.backgroundColor getRed:nil green:nil blue:nil alpha:&alpha];
-    _colorPreview.hidden = (alpha == 0);
+    self.cellColorDisplay.backgroundColor = self.selectedColor;
+}
+
+-(void)openColorPicker {
+    PSViewController *psController = (PSViewController*)[self _viewControllerForAncestor];
+
+    UIColorPickerViewController *colorPicker = [UIColorPickerViewController new];
+    colorPicker.delegate = self;
+    colorPicker.supportsAlpha = YES;
+    colorPicker.selectedColor = self.selectedColor;
+    [psController presentViewController:colorPicker animated:YES completion:nil];
+}
+
+- (void)colorPickerViewController:(UIColorPickerViewController *)viewController didSelectColor:(UIColor *)color continuously:(BOOL)continuously {
+    if (!continuously) {
+        self.selectedColor = color;
+    }
+}
+
+- (void)colorPickerViewControllerDidFinish:(UIColorPickerViewController *)viewController {
+    self.cellColorDisplay.backgroundColor = self.selectedColor;
+
+    PSViewController *psController = (PSViewController*)[self _viewControllerForAncestor];
+    NSString *colorString = [CIColor colorWithCGColor:self.selectedColor.CGColor].stringRepresentation;
+    [psController setPreferenceValue:colorString specifier:self.specifier];
 }
 
 @end

@@ -127,6 +127,10 @@
 @property (readonly) NSString * applicationID; 
 @end
 
+@interface FigCaptureClientSessionMonitorClient : NSObject
+@property (nonatomic,readonly) NSString * applicationID;
+@end
+
 @interface SpringBoard : UIApplication
 -(void)applicationOpenURL:(id)arg1;
 @end

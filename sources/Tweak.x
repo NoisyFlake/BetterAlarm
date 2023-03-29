@@ -59,7 +59,7 @@ id stopName;
 		self.currentTime.text = [formatter stringFromDate:[NSDate date]];
 		self.currentTime.textAlignment = NSTextAlignmentCenter;
 		self.currentTime.font = [UIFont systemFontOfSize:[preferences floatForKey:keyFor(@"ClockTextSize")]];
-		self.currentTime.textColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"ClockTextColor")]];
+		self.currentTime.textColor = [UIColor colorFromP3String:[preferences valueForKey:keyFor(@"ClockTextColor")]];
 		[self.currentTime sizeToFit];
 		self.currentTime.frame = CGRectMake(0, primaryHeight - labelDistance - self.currentTime.frame.size.height, kDEVICEWIDTH, self.currentTime.frame.size.height);
 
@@ -76,7 +76,7 @@ id stopName;
 		self.alarmTitle.textAlignment = NSTextAlignmentCenter;
 		self.alarmTitle.numberOfLines = 0;
 		self.alarmTitle.font = [UIFont systemFontOfSize:[preferences floatForKey:keyFor(@"TitleTextSize")]];
-		self.alarmTitle.textColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"TitleTextColor")]];
+		self.alarmTitle.textColor = [UIColor colorFromP3String:[preferences valueForKey:keyFor(@"TitleTextColor")]];
 		[self.alarmTitle sizeToFit];
 		self.alarmTitle.frame = CGRectMake(0, primaryHeight + labelDistance, kDEVICEWIDTH, self.alarmTitle.frame.size.height);
 
@@ -144,10 +144,10 @@ id stopName;
 
 		self.titleLabel.center = self.center;
 		self.titleLabel.font = [UIFont systemFontOfSize:[preferences floatForKey:keyFor(@"PrimaryTextSize")]];
-		[self setTitleColor:[UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"PrimaryTextColor")]] forState:UIControlStateNormal];
+		[self setTitleColor:[UIColor colorFromP3String:[preferences valueForKey:keyFor(@"PrimaryTextColor")]] forState:UIControlStateNormal];
 		[self.titleLabel sizeToFit];
 
-		UIColor *backgroundColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"PrimaryBackgroundColor")]];
+		UIColor *backgroundColor = [UIColor colorFromP3String:[preferences valueForKey:keyFor(@"PrimaryBackgroundColor")]];
 		CGFloat alpha = 0.0;
 		[backgroundColor getRed:nil green:nil blue:nil alpha:&alpha];
 
@@ -199,7 +199,7 @@ id stopName;
 		if ([[preferences objectForKey:keyFor(@"SecondaryTextSize")] isEqual:@""]) [preferences removeObjectForKey:keyFor(@"SecondaryTextSize")];
 		
 		self.titleLabel.font = [UIFont systemFontOfSize:[preferences floatForKey:keyFor(@"SecondaryTextSize")]];
-		[self setTitleColor:[UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryTextColor")]] forState:UIControlStateNormal];
+		[self setTitleColor:[UIColor colorFromP3String:[preferences valueForKey:keyFor(@"SecondaryTextColor")]] forState:UIControlStateNormal];
 		self.titleLabel.alpha = (secondaryHeight == 0) ? 0 : 1;
 		[self.titleLabel sizeToFit];
 
@@ -211,7 +211,7 @@ id stopName;
 			self.titleLabel.frame = CGRectMake((self.frame.size.width / 2) - (self.titleLabel.frame.size.width / 2), (self.frame.size.height / 2) - (self.titleLabel.frame.size.height / 2), self.titleLabel.frame.size.width, self.titleLabel.frame.size.height);
 		}
 		
-		UIColor *backgroundColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryBackgroundColor")]];
+		UIColor *backgroundColor = [UIColor colorFromP3String:[preferences valueForKey:keyFor(@"SecondaryBackgroundColor")]];
 		CGFloat alpha = 0.0;
 		[backgroundColor getRed:nil green:nil blue:nil alpha:&alpha];
 
@@ -262,10 +262,10 @@ id stopName;
 
 		self.titleLabel.center = self.center;
 		self.titleLabel.font = [UIFont systemFontOfSize:[preferences floatForKey:keyFor(@"SecondaryTextSize")]];
-		[self setTitleColor:[UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryTextColor")]] forState:UIControlStateNormal];
+		[self setTitleColor:[UIColor colorFromP3String:[preferences valueForKey:keyFor(@"SecondaryTextColor")]] forState:UIControlStateNormal];
 		[self.titleLabel sizeToFit];
 
-		UIColor *backgroundColor = [UIColor betterAlarmRGBAColorFromHexString:[preferences valueForKey:keyFor(@"SecondaryBackgroundColor")]];
+		UIColor *backgroundColor = [UIColor colorFromP3String:[preferences valueForKey:keyFor(@"SecondaryBackgroundColor")]];
 		CGFloat alpha = 0.0;
 		[backgroundColor getRed:nil green:nil blue:nil alpha:&alpha];
 
@@ -792,12 +792,22 @@ static NSString *keyFor(NSString *key) {
 %end
 
 %group MediaServerPatch
+
+// Allow background usage of the camera for SpringBoard
+
+// Pre-iOS 16
 %hook FigCaptureClientSessionMonitor
 -(void)_updateClientStateCondition:(void*)arg1 newValue:(id)arg2  { 
-	// Allow background usage of the camera for SpringBoard
 	if ([self.applicationID isEqualToString:@"com.apple.springboard"]) return;
-	
 	%orig; 
+}
+%end
+
+// iOS 16
+%hook FigCaptureClientSessionMonitorClient 
+-(BOOL)hasBackgroundCameraAccess {
+	if ([self.applicationID isEqualToString:@"com.apple.springboard"]) return YES;
+	return %orig;
 }
 %end
 %end
@@ -818,20 +828,20 @@ static NSString *keyFor(NSString *key) {
 		@"timerSwapButtons": @YES,
 		@"timerSmartSnooze": @NO, // can't be changed via Settings
 		@"timerPrimaryPercent": @30,
-		@"timerPrimaryBackgroundColor": @"#415F86:1.00",
+		@"timerPrimaryBackgroundColor": @"0.28015 0.36935 0.51298 1",
 		@"timerPrimaryGradient": @YES,
-		@"timerPrimaryTextColor": @"#FFFFFF:1.00",
+		@"timerPrimaryTextColor": @"1 1 1 1",
 		@"timerPrimaryTextSize": @48,
 
-		@"timerSecondaryBackgroundColor": @"#000000:1.00",
+		@"timerSecondaryBackgroundColor": @"0 0 0 1",
 		@"timerSecondaryGradient": @NO,
-		@"timerSecondaryTextColor": @"#FFFFFF:1.00",
+		@"timerSecondaryTextColor": @"1 1 1 1",
 		@"timerSecondaryTextSize": @48,
 
-		@"timerClockTextColor": @"#FFFFFF:0.75",
+		@"timerClockTextColor": @"1 1 1 0.75",
 		@"timerClockTextSize": @38,
 		
-		@"timerTitleTextColor": @"#FFFFFF:0.75",
+		@"timerTitleTextColor": @"1 1 1 0.75",
 		@"timerTitleTextSize": @24,
 
 		@"alarmSwapButtons": @NO,
@@ -840,20 +850,20 @@ static NSString *keyFor(NSString *key) {
 		@"alarmPrimaryPercent": @50,
 		@"alarmStopConfirmationType": @"none",
 		@"alarmSnoozeConfirmationType": @"none",
-		@"alarmPrimaryBackgroundColor": @"#000000:1.00",
+		@"alarmPrimaryBackgroundColor": @"0.0 0.0 0.0 1.0",
 		@"alarmPrimaryGradient": @NO,
-		@"alarmPrimaryTextColor": @"#FFFFFF:1.00",
+		@"alarmPrimaryTextColor": @"1 1 1 1",
 		@"alarmPrimaryTextSize": @48,
 
-		@"alarmSecondaryBackgroundColor": @"#A81B1D:1.00",
+		@"alarmSecondaryBackgroundColor": @"0.60465 0.16644 0.14586 1",
 		@"alarmSecondaryGradient": @YES,
-		@"alarmSecondaryTextColor": @"#FFFFFF:1.00",
+		@"alarmSecondaryTextColor": @"1 1 1 1",
 		@"alarmSecondaryTextSize": @48,
 
-		@"alarmClockTextColor": @"#FFFFFF:0.75",
+		@"alarmClockTextColor": @"1 1 1 0.75",
 		@"alarmClockTextSize": @38,
 		
-		@"alarmTitleTextColor": @"#FFFFFF:0.75",
+		@"alarmTitleTextColor": @"1 1 1 0.75",
 		@"alarmTitleTextSize": @24,
 		
 		@"alarmAsCarrier": @"alarmTime",
@@ -861,12 +871,6 @@ static NSString *keyFor(NSString *key) {
 		@"alarmAsCarrierCustom": @NO,
 		@"alarmAsCarrierCustomText": @""
 	}];
-
-	NSFileManager *fileManager = [NSFileManager defaultManager];
-
-	if ([fileManager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/ShortLook.dylib"]) {
-		dlopen("/Library/MobileSubstrate/DynamicLibraries/ShortLook.dylib", RTLD_LAZY);
-	}
 
 	%init(_ungrouped);
 	if ([[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"alarmTime"] || [[preferences valueForKey:@"alarmAsCarrier"] isEqual:@"timeUntilAlarm"]) {

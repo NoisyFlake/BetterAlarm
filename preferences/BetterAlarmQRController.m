@@ -20,7 +20,7 @@
 }
 
 - (void)setupHeader {
-	UIImage *image = [[UIImage alloc] initWithContentsOfFile: @"/Library/PreferenceBundles/BetterAlarm.bundle/qrcode.png"];
+	UIImage *image = [[UIImage alloc] initWithContentsOfFile:ROOT_PATH_NS_VAR(@"/Library/PreferenceBundles/BetterAlarm.bundle/qrcode.png")];
 
 	CGFloat size = self.view.bounds.size.width - 30;
     UIView *header = [[UIView alloc] initWithFrame:CGRectMake(0, 0, size, size + 50)];
@@ -37,7 +37,7 @@
 }
 
 -(void)saveImage{
-	UIImage *image = [[UIImage alloc] initWithContentsOfFile: @"/Library/PreferenceBundles/BetterAlarm.bundle/qrcode.png"];
+	UIImage *image = [[UIImage alloc] initWithContentsOfFile:ROOT_PATH_NS_VAR(@"/Library/PreferenceBundles/BetterAlarm.bundle/qrcode.png")];
 	UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
 
 	UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Image saved"

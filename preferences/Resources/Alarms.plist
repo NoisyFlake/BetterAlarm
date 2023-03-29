@@ -20,7 +20,7 @@
 		<dict>
 			<key>cell</key>                         <string>PSGroupCell</string>
 			<key>id</key>							<string>smartSnoozeGroup</string>
-			<key>footerText</key>					<string>Shrinks the Snooze button each time you press it.</string>
+			<key>footerText</key>					<string>Shrinks the Snooze button each time you press it and limits the amount of snoozes.</string>
 		</dict>
 		<dict>
 			<key>cell</key>							<string>PSSwitchCell</string>
@@ -39,11 +39,9 @@
 			<key>default</key>						<integer>3</integer>
 			<key>min</key>							<integer>1</integer>
 			<key>max</key>							<integer>5</integer>
-			<key>showValue</key>					<true />
-			<key>isSegmented</key>					<true />
-			<key>segmentCount</key>					<integer>4</integer>
+			<key>isSegmented</key>					<true/>
+			<key>showValue</key>					<true/>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
-			<key>leftLabel</key>					<string>Max. Snoozes:</string>
 		</dict>
 
 
@@ -61,9 +59,6 @@
 			<key>default</key>						<integer>50</integer>
 			<key>min</key>							<integer>20</integer>
 			<key>max</key>							<integer>80</integer>
-			<key>showValue</key>					<false />
-			<key>isSegmented</key>					<true />
-			<key>segmentCount</key>					<integer>6</integer>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>leftLabel</key>					<string>Snooze</string>
 			<key>rightLabel</key>					<string>Stop</string>
@@ -127,7 +122,7 @@
 			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>key</key>							<string>alarmSecondaryBackgroundColor</string>
-			<key>default</key>						<string>#A81B1D:1.00</string>
+			<key>default</key>						<string>0.60465 0.16644 0.14586 1</string>
 			<key>label</key>						<string>Background Color</string>
 		</dict>
 		<dict>
@@ -142,7 +137,7 @@
 			<key>cell</key>							<string>PSLinkCell</string>
 			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
-			<key>default</key>						<string>#FFFFFF:1.00</string>
+			<key>default</key>						<string>1 1 1 1</string>
 			<key>key</key>							<string>alarmSecondaryTextColor</string>
 			<key>label</key>						<string>Text Color</string>
 		</dict>
@@ -168,7 +163,7 @@
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>key</key>							<string>alarmPrimaryBackgroundColor</string>
 			<key>label</key>						<string>Background Color</string>
-			<key>default</key>						<string>#000000:1.00</string>
+			<key>default</key>						<string>0 0 0 1</string>
 		</dict>
 		<dict>
 			<key>cell</key>							<string>PSSwitchCell</string>
@@ -182,7 +177,7 @@
 			<key>cell</key>							<string>PSLinkCell</string>
 			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
-			<key>default</key>						<string>#FFFFFF:1.00</string>
+			<key>default</key>						<string>1 1 1 1</string>
 			<key>key</key>							<string>alarmPrimaryTextColor</string>
 			<key>label</key>						<string>Text Color</string>
 		</dict>
@@ -205,7 +200,7 @@
 		<dict>
 			<key>cell</key>							<string>PSLinkCell</string>
 			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
-			<key>default</key>						<string>#FFFFFF:0.75</string>
+			<key>default</key>						<string>1 1 1 0.75</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>key</key>							<string>alarmClockTextColor</string>
 			<key>label</key>						<string>Text Color</string>
@@ -229,7 +224,7 @@
 		<dict>
 			<key>cell</key>							<string>PSLinkCell</string>
 			<key>cellClass</key>					<string>BetterAlarmColorPicker</string>
-			<key>default</key>						<string>#FFFFFF:0.75</string>
+			<key>default</key>						<string>1 1 1 0.75</string>
 			<key>defaults</key>						<string>com.noisyflake.betteralarm</string>
 			<key>key</key>							<string>alarmTitleTextColor</string>
 			<key>label</key>						<string>Text Color</string>

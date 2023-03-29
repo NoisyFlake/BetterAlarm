@@ -1,4 +1,4 @@
 @interface UIColor (BetterAlarm)
-+(UIColor *)betterAlarmRGBAColorFromHexString:(NSString *)string;
++(UIColor *)colorFromP3String:(NSString *)string;
 - (UIColor *)betterAlarmLighterColor;
 @end
